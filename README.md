@@ -1,0 +1,3 @@
+# PhotoShare Awesome App
+
+## Development information coming soon...
