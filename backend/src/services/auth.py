@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from conf.config import settings
+from backend.src.core.config import settings
 from core.db import get_db
 from crud import users as repository_users
 

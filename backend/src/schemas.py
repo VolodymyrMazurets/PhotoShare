@@ -13,7 +13,8 @@ class UserDb(BaseModel):
     email: EmailStr
     created_at: datetime
     avatar: str
-
+    role : str
+    
     class Config:
         orm_mode = True
 

@@ -6,7 +6,7 @@ from core.db import get_db
 from schemas import UserModel, UserResponse, TokenModel, RequestEmail
 from crud import users as repository_users
 from services.auth import auth_service
-from models import UserRole, UserLogin
+from models import UserRole, User
 
 router = APIRouter(prefix='/auth', tags=["auth"])
 security = HTTPBearer()
@@ -17,11 +17,11 @@ async def signup(body: UserModel, background_tasks: BackgroundTasks, request: Re
     exist_user = await repository_users.get_user_by_email(body.email, db)
     if exist_user:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Account already exists")
-    roles = [UserRole.admin] if not db.query(UserLogin).count() else [UserRole.user]
+    roles = [UserRole.admin] if not db.query(User).count() else [UserRole.user]
     body.password = auth_service.get_password_hash(body.password)
     new_user = await repository_users.create_user(body, db)
     background_tasks.add_task(send_email, new_user.email, new_user.username, request.base_url)
-    return {"user": new_user, "role": UserRole.user, "detail": "User successfully created. Check your email for confirmation."}
+    return {"user": new_user, "role": roles, "detail": "User successfully created. Check your email for confirmation."}
 
 
 @router.post("/login", response_model=TokenModel)
@@ -77,3 +77,7 @@ async def request_email(body: RequestEmail, background_tasks: BackgroundTasks, r
     if user:
         background_tasks.add_task(send_email, user.email, user.username, request.base_url)
     return {"message": "Check your email for confirmation."}
+
+
+
+

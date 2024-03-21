@@ -2,7 +2,7 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from conf.config import settings
+from backend.src.core.config import settings
 
 # SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://postgres:111111@localhost:5432/postgres"
 SQLALCHEMY_DATABASE_URL = settings.sqlalchemy_database_url
