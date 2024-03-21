@@ -5,9 +5,9 @@ services:
     image: postgres:14.5-alpine
     restart: unless-stopped
     environment:
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
-      - POSTGRES_USER=${POSTGRES_USER?Variable not set}
-      - POSTGRES_DB=${POSTGRES_DB?Variable not set}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Variable not set}
+      POSTGRES_USER: ${POSTGRES_USER?Variable not set}
+      POSTGRES_DB: ${POSTGRES_DB?Variable not set}
     ports:
       - 5432:5432
     volumes:
@@ -17,6 +17,42 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+  
+  redis:
+    image: redis:alpine
+    restart: always
+    command: ["sh", "-c", "redis-server --requirepass \"$REDIS_PASSWORD\""]
+    env_file: .env
+    volumes:
+      - redis:/data/redis
+    ports:
+      - '6379:6379'
+
+  rabbitmq:
+    image: rabbitmq:latest
+    tty: true
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbit
+      RABBITMQ_DEFAULT_PASS: rabbit
+    ports:
+      - 15672:15672
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+      ADMINER_DESIGN: pepa-linha-dark
+    networks:
+      - adminer-network
 
   backend:
     build: './backend'
@@ -24,8 +60,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    env_file:
-      - .env
+    env_file: .env
     volumes:
       - ./backend:/app
       - /app/.venv
@@ -45,3 +80,7 @@ services:
 
 volumes:
   photoshare-db-data: {}
+  redis: {}
+
+networks:
+  adminer-network:
