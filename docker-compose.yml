@@ -4,6 +4,7 @@ services:
   postgres:
     image: postgres:14.5-alpine
     restart: unless-stopped
+    env_file: .env
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Variable not set}
       POSTGRES_USER: ${POSTGRES_USER?Variable not set}
@@ -28,19 +29,6 @@ services:
     ports:
       - '6379:6379'
 
-  rabbitmq:
-    image: rabbitmq:latest
-    tty: true
-    environment:
-      RABBITMQ_DEFAULT_USER: rabbit
-      RABBITMQ_DEFAULT_PASS: rabbit
-    ports:
-      - 15672:15672
-    healthcheck:
-      test: rabbitmq-diagnostics -q ping
-      interval: 30s
-      timeout: 30s
-      retries: 3
   adminer:
     image: adminer
     ports:
