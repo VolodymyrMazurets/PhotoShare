@@ -3,7 +3,7 @@ version: "3"
 
 services:
   postgres:
-    image: postgres:14.5-alpine
+    image: postgres:14
     restart: unless-stopped
     env_file: .env
     environment:
