@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     DOMAIN: str = "localhost"
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
-    POSTGRES_SERVER: str
+    POSTGRES_SERVER: str = 'localhost'
     POSTGRES_PORT: int = 5432
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
@@ -29,10 +29,10 @@ class Settings(BaseSettings):
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
         return MultiHostUrl.build(
-            scheme="postgresql+psycopg",
+            scheme="postgresql+psycopg2",
             username=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
-            host=self.POSTGRES_SERVER,
+            host='localhost',
             port=self.POSTGRES_PORT,
             path=self.POSTGRES_DB,
         )
