@@ -4,7 +4,9 @@ from sqlalchemy import Column, Integer, String, func, Boolean, Enum
 from sqlalchemy.sql.sqltypes import DateTime
 from sqlalchemy.ext.declarative import declarative_base
 
+
 Base = declarative_base()
+
 
 class UserRole(str, Enum):
     admin = "admin"
@@ -25,3 +27,14 @@ class User(Base):
     confirmed = Column(Boolean, default=False)
     active = Column(Boolean, default=False)
     role = Column(String, default="user")
+
+
+class Tag(Base):
+    __tablename__ = "tags"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, index=True)
+
+
+class Image:
+    pass

@@ -1,5 +1,7 @@
 from pydantic import BaseModel, EmailStr, Field
+from typing import List
 from datetime import datetime
+
 
 class UserModel(BaseModel):
     username: str = Field(min_length=5, max_length=16)
@@ -32,3 +34,7 @@ class TokenModel(BaseModel):
 
 class RequestEmail(BaseModel):
     email: EmailStr
+
+
+class TagList(BaseModel):
+    tags: List[str]
