@@ -1,10 +1,11 @@
 # DB models there
-import enum
 from sqlalchemy import Column, Integer, String, func, Boolean, Enum
 from sqlalchemy.sql.sqltypes import DateTime
 from sqlalchemy.ext.declarative import declarative_base
 
+
 Base = declarative_base()
+
 
 class UserRole(str, Enum):
     admin = "admin"
@@ -13,7 +14,7 @@ class UserRole(str, Enum):
 
 
 class User(Base):
-    __tablename__ = 'users_login'
+    __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     username = Column(String(50))
     email = Column(String(250), nullable=False, unique=True)
@@ -25,3 +26,14 @@ class User(Base):
     confirmed = Column(Boolean, default=False)
     active = Column(Boolean, default=False)
     role = Column(String, default="user")
+
+
+class Tag(Base):
+    __tablename__ = "tags"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, index=True)
+
+
+class Image:
+    pass

@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends, status, Security, BackgroundTasks, Request
 from fastapi.security import OAuth2PasswordRequestForm, HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
-from services.email import send_email
-from core.db import get_db
-from schemas import UserModel, UserResponse, TokenModel, RequestEmail
-from crud import users as repository_users
-from services.auth import auth_service
-from models import UserRole, User
+from src.services.email import send_email
+from src.core.db import get_db
+from src.schemas import UserModel, UserResponse, TokenModel, RequestEmail
+from src.crud import users as repository_users
+from src.services.auth import auth_service
+from src.models import UserRole, User
 
 router = APIRouter(prefix='/auth', tags=["auth"])
 security = HTTPBearer()
