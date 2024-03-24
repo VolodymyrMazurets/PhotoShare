@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
-from ..core.db import SessionLocal, engine, get_db
-from ..models import Tag
-from ..main import app
+from src.core.db import SessionLocal, engine, get_db
+from src.models import Tag
+from src.main import app
 
 
 def override_get_db():
