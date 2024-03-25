@@ -1,8 +1,8 @@
 from sqlalchemy import Column, String, Boolean
-from src.models.base import Base
+from src.models.base import CommonBase
 
 
-class User(Base):
+class User(CommonBase):
 
     __tablename__ = 'users'
     username = Column(String(50))
