@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from src import models
 from src.core.db import SessionLocal
-from src.schemas import TagList
+from src.schemas.tags import TagList
 
 def add_tags_func(image_id: int, tags: TagList):
     if len(tags.tags) > 5:
