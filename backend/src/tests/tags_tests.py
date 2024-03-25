@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
-from src.core.db import SessionLocal, engine, get_db
-from src.models import Tag
+from src.core.db import SessionLocal, get_db
+from src.models.tag import Tag
 from src.main import app
 
 
