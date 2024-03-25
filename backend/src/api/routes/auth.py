@@ -8,7 +8,7 @@ from src.schemas.token import TokenModel
 from src.schemas.email import RequestEmail
 from src.crud import users as repository_users
 from src.services.auth import auth_service
-from src.models.user import User
+from src.models import User
 from src.constants.role import UserRole
 
 router = APIRouter(prefix='/auth', tags=["auth"])
