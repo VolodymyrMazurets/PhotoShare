@@ -3,7 +3,8 @@ from src.api.routes import auth
 from fastapi.middleware.cors import CORSMiddleware
 
 origins = [
-    "http://localhost:8000"
+    "http://localhost:8000",
+    "http://localhost:3000",
 ]
 
 app = FastAPI()
@@ -18,7 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 def read_root():
     return {"message": "Hello World"}
-
