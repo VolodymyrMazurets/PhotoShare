@@ -78,3 +78,11 @@ class Comment(BaseModel):
         'posts.id', ondelete='CASCADE'), default=None)
     user = relationship("User", back_populates="comments")
     post = relationship("Post", back_populates="comments")
+        
+class BlacklistedToken(Base):
+    __tablename__ = 'blacklisted_tokens'
+
+    id = Column(Integer, primary_key=True)
+    blacklisted_token = Column(String(255), nullable=True)
+    user_id = Column('user_id', ForeignKey('users_table.id', ondelete='CASCADE'), unique=True)
+    user = relationship('User', back_populates='blacklisted_token')
