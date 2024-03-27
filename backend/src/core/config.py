@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str = ''
     EMAILS_FROM_EMAIL: str = ''
     SECRET_KEY: str = 'secret_key'
+
     ALGORITHM: str = 'HS256'
     @computed_field  # type: ignore[misc]
     @property
