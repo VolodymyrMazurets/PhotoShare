@@ -98,4 +98,4 @@ class Auth:
 
 
 
-service_auth = Auth()
+auth_service = Auth()
