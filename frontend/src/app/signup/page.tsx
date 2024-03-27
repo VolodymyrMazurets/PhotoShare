@@ -37,7 +37,6 @@ const Signup: React.FC = () => {
           toast.error(err.response.data.detail);
         } else {
           toast.error('Something going wrong!');
-
         }
       });
   };

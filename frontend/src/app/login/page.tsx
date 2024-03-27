@@ -26,11 +26,10 @@ const { Title } = Typography;
 const Login: React.FC = () => {
   const router = useRouter();
 
-  const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
+  const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     const data = generateFormDataFromObject(values);
     axios
       .post("http://localhost:8000/api/auth/login", data)
-
       .then((res) => {
         setCookie("token", res.data.access_token, {expires: fromUnixTime(parseJwt(res.data.access_token)?.exp)});
         setCookie("refresh_token", res.data.refresh_token);

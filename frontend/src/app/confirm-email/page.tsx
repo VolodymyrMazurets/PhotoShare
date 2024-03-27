@@ -3,7 +3,7 @@
 import { Button, Col, Row, Typography, Spin } from "antd";
 import axios from "axios";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { isNull } from "lodash";
 
@@ -13,7 +13,6 @@ const ConfirmEmail: React.FC = () => {
   const params = useSearchParams();
   const router = useRouter();
   const [isSuccess, setIsSuccess] = useState<null | boolean>(null);
-  const countRef = useRef(isSuccess);
 
   const confirmEmail = useCallback(() => {
     const token = params.get("token");
