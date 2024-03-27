@@ -70,6 +70,7 @@ const Login: React.FC = () => {
               flexDirection: "column",
               alignItems: "center",
               borderRadius: 12,
+              backgroundColor: "white",
             }}
           >
             <Title level={2} style={{ marginBottom: 32 }}>
