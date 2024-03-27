@@ -2,9 +2,9 @@ from src.crud.post import Image
 import cloudinary.uploader
 
 cloudinary.config(
-    cloud_name= "CLOUD_NAME",
-    api_key= "API_KEY",
-    api_secret= "API_SECRET"
+    cloud_name= "CLOUDINARY_CLOUD_NAME",
+    api_key= "CLOUDINARY_API_KEY",
+    api_secret= "CLOUDINARY_API_SECRET"
 )
 
 async def upload_image_with_description(image_data: bytes, description: str):
