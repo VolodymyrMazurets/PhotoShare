@@ -17,7 +17,6 @@ async def upload_image_route(body: PostModel, user: User = Depends(auth_service.
 async def delete_image_route(image_id: int):
     return await delete_image(image_id)
 
-
 @router.put("/update-image-description/{image_id}")
 async def update_image_description_route(image_id: int, description: str):
     return await update_image_description(image_id, description)
