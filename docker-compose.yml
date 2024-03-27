@@ -69,6 +69,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER?Variable not set}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
+      - FRONTEND_URL=${FRONTEND_URL}
     ports:
       - "8000:8000"
     networks:
@@ -84,6 +85,8 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+    environment:
+      - BACKEND_URL=${BACKEND_URL}
     networks:
       - default
 
