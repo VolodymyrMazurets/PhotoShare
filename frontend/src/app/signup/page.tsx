@@ -10,34 +10,34 @@ import {
   Typography,
 } from "antd";
 import axios from "axios";
-import { generateFormDataFromObject, parseJwt } from "@/utils";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { setCookie } from "cookies-next";
-import {fromUnixTime} from 'date-fns';
 
 type FieldType = {
   username?: string;
   password?: string;
+  email?: string;
 };
 
 const { Title } = Typography;
 
-const Login: React.FC = () => {
+const Signup: React.FC = () => {
   const router = useRouter();
+  const [form] = Form.useForm();
 
-  const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    const data = generateFormDataFromObject(values);
+  const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
     axios
-      .post("http://localhost:8000/api/auth/login", data)
+      .post("http://localhost:8000/api/auth/signup", values)
       .then((res) => {
-        setCookie("token", res.data.access_token, {expires: fromUnixTime(parseJwt(res.data.access_token)?.exp)});
-        setCookie("refresh_token", res.data.refresh_token);
-        toast.success("Login successfully!");
-        router.push("/");
+        toast.success(res.data.detail);
+        form.resetFields();
       })
       .catch((err) => {
-        toast.error(err.response.data.detail || "Something going wrong!");
+        if (err.response?.data?.detail) {
+          toast.error(err.response.data.detail);
+        } else {
+          toast.error('Something going wrong!');
+        }
       });
   };
 
@@ -47,9 +47,10 @@ const Login: React.FC = () => {
     console.log("Failed:", errorInfo);
   };
 
-  const onSignUpClick = () => {
-    router.push("/signup");
+  const onLoginClick = () => {
+    router.push("/login");
   };
+
 
   return (
     <div style={{ height: "100vh", width: "100%", overflow: "hidden" }}>
@@ -76,7 +77,8 @@ const Login: React.FC = () => {
               Login to PhotoShare
             </Title>
             <Form
-              name="basic"
+              name="signup"
+              form={form}
               style={{ width: "100%" }}
               initialValues={{ remember: true }}
               onFinish={onFinish}
@@ -85,10 +87,24 @@ const Login: React.FC = () => {
               layout="vertical"
             >
               <Form.Item<FieldType>
-                label="Email"
+                label="Username"
                 name="username"
                 rules={[
                   { required: true, message: "Please input your username!" },
+                  {
+                    min: 5,
+                    message: "Username must be at least 5 characters!",
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item<FieldType>
+                label="Email"
+                name="email"
+                rules={[
+                  { required: true, message: "Please input your username!" },
+                  { type: "email", message: "Please input a valid email!" },
                 ]}
               >
                 <Input />
@@ -99,6 +115,10 @@ const Login: React.FC = () => {
                 name="password"
                 rules={[
                   { required: true, message: "Please input your password!" },
+                  {
+                    min: 6,
+                    message: "Password must be at least 6 characters!",
+                  },
                 ]}
               >
                 <Input.Password />
@@ -110,12 +130,12 @@ const Login: React.FC = () => {
                   type="primary"
                   htmlType="submit"
                 >
-                  Login
+                  Sign Up
                 </Button>
               </Form.Item>
             </Form>
-            <Button type="link" onClick={onSignUpClick}>
-              Sign up fo an account
+            <Button type="link" onClick={onLoginClick}>
+              Log in to an existing account
             </Button>
           </div>
         </Col>
@@ -124,4 +144,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default Signup;

@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = 'secret_key'
 
     ALGORITHM: str = 'HS256'
+    FRONTEND_URL: str = 'http://localhost:3000'
     @computed_field  # type: ignore[misc]
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
