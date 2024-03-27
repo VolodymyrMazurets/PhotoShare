@@ -11,5 +11,10 @@
     min-height: 100vh;
     overflow-x: hidden;
   }
+
+  body {
+    background-color: #a8b7f3;
+    background-image: linear-gradient(180deg, #a8b7f3 0%, #edfaff 100%);
+  }
   
   
