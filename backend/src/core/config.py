@@ -23,8 +23,9 @@ class Settings(BaseSettings):
     SMTP_USER: str = ''
     SMTP_PASSWORD: str = ''
     EMAILS_FROM_EMAIL: str = ''
-    SECRET_KEY: str = 'secret_key'
-
+    CLOUDINARY_CLOUD_NAME: str = ''
+    CLOUDINARY_API_KEY: str = ''
+    CLOUDINARY_API_SECRET: str = ''
     ALGORITHM: str = 'HS256'
     FRONTEND_URL: str = 'http://localhost:3000'
     @computed_field  # type: ignore[misc]
