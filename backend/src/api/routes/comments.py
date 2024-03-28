@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from src.models import User, Comment, Image
-from src.services.auth import service_auth
+from src.services.auth import auth_service
 from src.core.db import get_db
 from crud import comments as repository_comments, images as repository_images
 from src.schemas import comments as schema_comments
@@ -19,7 +19,7 @@ allowed_operation_admin_moderator = RoleRights(["admin", "moderator"])
              response_model=schema_comments.CommentResponce,
              dependencies=[Depends(allowed_operation_any_user)])
 async def add_comment(body: schema_comments.CommentModel,
-                      current_user: User = Depends(service_auth.get_current_user),
+                      current_user: User = Depends(auth_service.get_current_user),
                       db: Session = Depends(get_db)):
     """
     The add_comment function creates a new comment for an image.
@@ -46,7 +46,7 @@ async def add_comment(body: schema_comments.CommentModel,
              response_model=schema_comments.CommentResponce,
              dependencies=[Depends(allowed_operation_any_user)])
 async def read_comment(comment_id: int,
-                       current_user: User = Depends(service_auth.get_current_user),
+                       current_user: User = Depends(auth_service.get_current_user),
                        db: Session = Depends(get_db)):
     """
     The read_comment function returns a comment by its id.
@@ -68,7 +68,7 @@ async def read_comment(comment_id: int,
             dependencies=[Depends(allowed_operation_any_user)])
 async def update_comment(comment_id: int,
                          body: schema_comments.CommentUpdate,
-                         current_user: User = Depends(service_auth.get_current_user),
+                         current_user: User = Depends(auth_service.get_current_user),
                          db: Session = Depends(get_db)):
     """
     The update_comment function updates a comment in the database.
@@ -96,7 +96,7 @@ async def update_comment(comment_id: int,
 @router.delete("/{comment_id}", status_code=200,
             dependencies=[Depends(allowed_operation_admin_moderator)])
 async def delete_comment(comment_id: int,
-                         current_user: User = Depends(service_auth.get_current_user),
+                         current_user: User = Depends(auth_service.get_current_user),
                          db: Session = Depends(get_db)):
     """
     The update_comment function updates a comment by deleting it.
