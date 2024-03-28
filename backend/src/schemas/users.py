@@ -23,3 +23,14 @@ class UserDb(BaseModel):
 class UserResponse(BaseModel):
     user: UserDb
     detail: str = "User successfully created"
+
+
+class UserResponseProfile(BaseModel):
+    user: UserDb
+    detail: str = "Info about user"
+    image_count: int = 0
+
+
+class UserUpdate(BaseModel):
+    username: str = Field(min_length=5, max_length=16)
+    email: EmailStr

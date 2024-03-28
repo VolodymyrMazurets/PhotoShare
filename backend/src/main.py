@@ -1,15 +1,15 @@
 from fastapi import FastAPI
-from src.api.routes import auth
+from src.api.routes import auth, profile, avatar
 from fastapi.middleware.cors import CORSMiddleware
 
 origins = [
-    "http://localhost:8000",
-    "http://localhost:3000",
+    "http://localhost:8000"
 ]
 
 app = FastAPI()
 app.include_router(auth.router, prefix='/api')
-
+app.include_router(profile.router, prefix='/api')
+app.include_router(avatar.router, prefix='/api')
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,7 +18,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 @app.get("/")
 def read_root():

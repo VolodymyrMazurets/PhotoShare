@@ -15,9 +15,9 @@ class Settings(BaseSettings):
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
     POSTGRES_SERVER: str = 'localhost'
     POSTGRES_PORT: int = 5432
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str = ""
+    POSTGRES_USER: str = ''
+    POSTGRES_PASSWORD: str = ''
+    POSTGRES_DB: str = ''
     SMTP_PORT: int = 465
     SMTP_HOST: str = ''
     SMTP_USER: str = ''
@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     EMAILS_FROM_EMAIL: str = ''
     SECRET_KEY: str = 'secret_key'
     ALGORITHM: str = 'HS256'
+    CLOUDINARY_NAME: str = ''
+    CLOUDINARY_API_KEY: str = ''
+    CLOUDINARY_API_SECRET: str = ''
     @computed_field  # type: ignore[misc]
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:

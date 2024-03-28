@@ -1,17 +1,19 @@
 from libgravatar import Gravatar
 from sqlalchemy.orm import Session
-
+from sqlalchemy import and_, or_
 from src.models import User
 from src.constants.role import UserRole
-from src.schemas.users import UserModel
+from src.schemas.users import UserModel, UserUpdate
+from src.constants.role import UserRole
 
 
 async def get_user_by_email(email: str, db: Session) -> User:
     return db.query(User).filter(User.email == email).first()
 
 
-async def get_user_by_username(db: Session, username: str) -> User:
-    return db.query(User).filter(User.username == username).first()
+async def get_user_by_username(db: Session, username: str, current_user: User) -> User:
+    return db.query(User).filter(and_(or_(User.username == username, User.id == current_user.id),
+                                       or_(current_user.role == 'admin', current_user.role == 'moderator'))).first()
 
 
 async def create_user(body: UserModel, db: Session) -> User:
@@ -51,18 +53,29 @@ async def update_avatar(email: str, url: str, db: Session) -> User:
     return user
 
 
-async def get_user_by_id(id: int, db: Session, active: bool | None = True) -> User:
-    query = db.query(User).filter(
-        User.id == id,
-    )
-    if active is not None:
-        query = query.filter(User.active == active)
-    return query.first()
-
-
-async def delete_user(user_id: int, db: Session) -> User:
-    user = await get_user_by_id(user_id, active=False, db=db)
+async def delete_user(user_id: int, db: Session, current_user: User) -> User:
+    user = db.query(User).filter(and_(or_(User.id == user_id, current_user.id == User.id), 
+                                      or_(current_user.role == 'admin', current_user.role == 'moderator'))).first()
     if user:
         db.delete(user)
         db.commit()
+    return user
+
+
+async def update_user(user_id: int, body: UserUpdate, db: Session, current_user: User) -> User:
+    user = db.query(User).filter(and_(User.id == user_id, current_user.id == User.id)).first()
+    if user:
+        if body.username != 'string':
+            user.username = body.username
+        if body.email != 'user@example.com':
+            user.email = body.email
+    db.commit()
+    return user
+
+
+async def update_role(user_id: int, role: str, db: Session, current_user: User) -> User:
+    user = db.query(User).filter(and_(User.id == user_id, current_user.role == 'admin')).first()
+    if user:
+        user.role = role
+    db.commit()
     return user
