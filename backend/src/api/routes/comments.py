@@ -16,7 +16,7 @@ allowed_operation_admin_moderator = RoleRights(["admin", "moderator"])
 
 
 @router.post("/", status_code=200, 
-             response_model=schema_comments.CommentResponce,
+             response_model=schema_comments.CommentResponse,
              dependencies=[Depends(allowed_operation_any_user)])
 async def add_comment(body: schema_comments.CommentModel,
                       current_user: User = Depends(auth_service.get_current_user),
@@ -43,7 +43,7 @@ async def add_comment(body: schema_comments.CommentModel,
 
 
 @router.get("/{comment_id}", status_code=200, 
-             response_model=schema_comments.CommentResponce,
+             response_model=schema_comments.CommentResponse,
              dependencies=[Depends(allowed_operation_any_user)])
 async def read_comment(comment_id: int,
                        current_user: User = Depends(auth_service.get_current_user),
@@ -64,7 +64,7 @@ async def read_comment(comment_id: int,
 
 
 @router.put("/{comment_id}", status_code=200,
-            response_model=schema_comments.CommentResponce,
+            response_model=schema_comments.CommentResponse,
             dependencies=[Depends(allowed_operation_any_user)])
 async def update_comment(comment_id: int,
                          body: schema_comments.CommentUpdate,
