@@ -4,7 +4,7 @@ from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
 
 from src.models import Comment, User, Image
-from src.schemas import CommentBase
+from src.schemas.comments import CommentBase
 
 
 async def get_comments(
