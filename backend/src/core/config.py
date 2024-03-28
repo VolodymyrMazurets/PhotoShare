@@ -6,6 +6,8 @@ from pydantic import (
     computed_field,
 )
 from pydantic_core import MultiHostUrl
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env", env_ignore_empty=True, extra="ignore"
@@ -26,6 +28,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str = ''
     ALGORITHM: str = 'HS256'
     FRONTEND_URL: str = 'http://localhost:3000'
+    BACKEND_URL: str = 'http://localhost:8000'
+
     @computed_field  # type: ignore[misc]
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
