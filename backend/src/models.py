@@ -3,6 +3,7 @@ from sqlalchemy.orm import DeclarativeBase, relationship
 from sqlalchemy.sql.schema import MetaData
 from sqlalchemy.sql.sqltypes import DateTime
 
+
 metadata = MetaData()
 
 
