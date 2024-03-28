@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     SMTP_USER: str = ''
     SMTP_PASSWORD: str = ''
     EMAILS_FROM_EMAIL: str = ''
+    SECRET_KEY: str = ''
     CLOUDINARY_CLOUD_NAME: str = ''
     CLOUDINARY_API_KEY: str = ''
     CLOUDINARY_API_SECRET: str = ''

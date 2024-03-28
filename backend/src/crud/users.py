@@ -1,9 +1,20 @@
 from libgravatar import Gravatar
 from sqlalchemy.orm import Session
+from fastapi import HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordBearer
+from passlib.context import CryptContext
+from jose import JWTError, jwt
 
 from src.models import User
 from src.constants.role import UserRole
 from src.schemas.users import UserModel
+from src.core.config import settings
+from src.core.db import get_db
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.ALGORITHM
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 
 async def get_user_by_email(email: str, db: Session) -> User:
@@ -66,3 +77,26 @@ async def delete_user(user_id: int, db: Session) -> User:
         db.delete(user)
         db.commit()
     return user
+
+async def get_current_user(self, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+        credentials_exception = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+        try:
+            payload = jwt.decode(token, self.SECRET_KEY,
+                                 algorithms=[self.ALGORITHM])
+            if payload['scope'] == 'access_token':
+                email = payload["sub"]
+                if email is None:
+                    raise credentials_exception
+            else:
+                raise credentials_exception
+        except JWTError as e:
+            raise credentials_exception
+
+        user = await get_user_by_email(email, db)
+        if user is None:
+            raise credentials_exception
+        return user
