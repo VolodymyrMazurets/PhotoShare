@@ -29,7 +29,7 @@ const Login: React.FC = () => {
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     const data = generateFormDataFromObject(values);
     axios
-      .post("http://localhost:8000/api/auth/login", data)
+      .post("http://localhost:8000/api/v1/auth/login", data)
       .then((res) => {
         setCookie("token", res.data.access_token, {expires: fromUnixTime(parseJwt(res.data.access_token)?.exp)});
         setCookie("refresh_token", res.data.refresh_token);

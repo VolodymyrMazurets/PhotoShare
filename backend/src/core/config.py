@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     POSTGRES_SERVER: str = 'localhost'
     POSTGRES_PORT: int = 5432
     POSTGRES_USER: str = ''
-    POSTGRES_PASSWORD: str = ""
+    POSTGRES_PASSWORD: str = ''
     POSTGRES_DB: str = ""
     SMTP_PORT: int = 465
     SMTP_HOST: str = ''
@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str = ''
     EMAILS_FROM_EMAIL: str = ''
     SECRET_KEY: str = ''
+    CLOUDINARY_CLOUD_NAME: str = ''
+    CLOUDINARY_API_KEY: str = ''
+    CLOUDINARY_API_SECRET: str = ''
     ALGORITHM: str = 'HS256'
     FRONTEND_URL: str = 'http://localhost:3000'
     BACKEND_URL: str = 'http://localhost:8000'

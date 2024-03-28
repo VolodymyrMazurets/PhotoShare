@@ -27,7 +27,7 @@ const Signup: React.FC = () => {
 
   const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
     axios
-      .post("http://localhost:8000/api/auth/signup", values)
+      .post("http://localhost:8000/api/v1/auth/signup", values)
       .then((res) => {
         toast.success(res.data.detail);
         form.resetFields();
