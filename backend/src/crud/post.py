@@ -48,28 +48,24 @@ async def upload_post_with_description(user: User, image: File, body: PostModelC
 
 
 async def delete_post(post_id: int, user: User, db: Session):
-    try:
-        post = db.query(Post).filter(
-            and_(Post.user_id == user.id, Post.id == post_id)).first()
-        if post:
-            cloudinary.uploader.destroy(post.image)
-            db.delete(post)
-            db.commit()
-            return post
-    except Exception as e:
-        print(e)
+    post = db.query(Post).filter(
+        and_(Post.user_id == user.id, Post.id == post_id)).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    cloudinary.uploader.destroy(post.image)
+    db.delete(post)
+    db.commit()
+    return post
 
 
 async def update_post_description(post_id: int, description: str, user: User, db: Session):
-    try:
-        post = db.query(Post).filter(
-            and_(Post.user_id == user.id, Post.id == post_id)).first()
-        if post:
-            post.description = description
-            db.commit()
-            return post
-    except Exception as e:
-        print(e)
+    post = db.query(Post).filter(
+        and_(Post.user_id == user.id, Post.id == post_id)).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    post.description = description
+    db.commit()
+    return post
 
 
 async def get_post_by_id(post_id: int, db: Session):
