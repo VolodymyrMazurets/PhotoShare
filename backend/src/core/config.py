@@ -15,9 +15,9 @@ class Settings(BaseSettings):
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
     POSTGRES_SERVER: str = 'localhost'
     POSTGRES_PORT: int = 5432
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str = ""
+    POSTGRES_USER: str = 'postgres'
+    POSTGRES_PASSWORD: str = "123456"
+    POSTGRES_DB: str = "photoshare"
     SMTP_PORT: int = 465
     SMTP_HOST: str = ''
     SMTP_USER: str = ''
