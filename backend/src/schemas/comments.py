@@ -9,7 +9,7 @@ class CommentModel(BaseModel):
     image_id: int = Field(ge=1)
 
 
-class CommentResponce(BaseModel):
+class CommentResponse(BaseModel):
     id: int
     comment: str
     image_id: int
