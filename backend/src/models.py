@@ -85,5 +85,5 @@ class BlacklistedToken(Base):
 
     id = Column(Integer, primary_key=True)
     blacklisted_token = Column(String(255), nullable=True)
-    user_id = Column('user_id', ForeignKey('users_table.id', ondelete='CASCADE'), unique=True)
+    user_id = Column('user_id', ForeignKey('users.id', ondelete='CASCADE'), unique=True)
     user = relationship('User', back_populates='blacklisted_token')
