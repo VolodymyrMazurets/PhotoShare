@@ -5,19 +5,23 @@ from datetime import datetime
 class PostModel(BaseModel):
     title: str = Field(min_length=1, max_length=255)
     description: str = Field(min_length=1, max_length=255)
-    image: str = Field(min_length=6, max_length=10)
 
 
-class PostCreate(PostModel):
-    post: PostModel
+class PostModelWithImage(PostModel):
+    image: str = Field(min_length=1, max_length=255)
+    id: int
+    created_at: datetime
+
+
+class PostCreate(BaseModel):
+    post: PostModelWithImage
     detail: str = "Post successfully created"
 
-
-class PostUpdate(PostModel):
-    post: PostModel
+class PostUpdate(BaseModel):
+    post: PostModelWithImage
     detail: str = "Post successfully updated"
 
-class PostDelete(PostModel):
-    post: PostModel
+class PostDelete(BaseModel):
+    post: PostModelWithImage
     detail: str = "Post successfully deleted"
 

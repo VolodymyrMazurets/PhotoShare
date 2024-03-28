@@ -49,6 +49,7 @@ class User(BaseModel):
     role = Column(String, default="user")
     comments = relationship("Comment", back_populates="user")
     posts = relationship("Post", back_populates="user")
+    blacklisted_token = relationship('BlacklistedToken', back_populates='user')
 
 
 class Tag(BaseModel):

@@ -1,9 +1,14 @@
 from fastapi import File
+import uuid
+import cloudinary
+import cloudinary.uploader
+from sqlalchemy import and_
+from sqlalchemy.orm import Session
+
+
 from src.models import Post, User
 from src.schemas.posts import PostModel
 from src.core.config import settings
-import uuid
-import cloudinary
 
 cloudinary.config(
     cloud_name=settings.CLOUDINARY_CLOUD_NAME,
@@ -12,45 +17,53 @@ cloudinary.config(
 )
 
 
-async def upload_image_with_description(body: PostModel, user: User, image: File,):
+async def upload_post_with_description(user: User, image: File, body: PostModel,  db: Session):
     try:
         public_id = f"photo_share/{uuid.uuid4()}"
         upload_result = cloudinary.uploader.upload(
             image.file, public_id=public_id)
         res_url = cloudinary.CloudinaryImage(public_id).build_url(
-            width=250, height=250, crop="fill", version=upload_result.get("version")
+            version=upload_result.get("version")
         )
-        image = Post(title=body.title, description=body.description,
-                     image=res_url, user_id=user.id)
-        await image.save()
-        return image
+        post = Post(title=body.title, description=body.description,
+                    image=res_url, user_id=user.id)
+        db.add(post)
+        db.commit()
+        db.refresh(post)
+        return post
     except Exception as e:
-        return {"message": f"Failed to upload image: {str(e)}"}
+        print(e)
 
 
-async def delete_image(image_id: int):
+async def delete_post(post_id: int, user: User, db: Session):
     try:
-        image = await Post.get(id=image_id)
-        deletion_result = cloudinary.uploader.destroy(image.url)
-        await image.delete()
-        return {"message": f"Image with ID {image_id} deleted successfully"}
+        post = db.query(Post).filter(
+            and_(Post.user_id == user.id, Post.id == post_id)).first()
+        if post:
+            cloudinary.uploader.destroy(post.image)
+            db.delete(post)
+            db.commit()
+            return post
     except Exception as e:
-        return {"message": f"Failed to delete image: {str(e)}"}
+        print(e)
 
 
-async def update_image_description(image_id: int, description: str):
+async def update_post_description(post_id: int, description: str, user: User, db: Session):
     try:
-        image = await Post.get(id=image_id)
-        image.description = description
-        await image.save()
-        return {"message": f"Description for image with ID {image_id} updated successfully"}
+        post = db.query(Post).filter(
+            and_(Post.user_id == user.id, Post.id == post_id)).first()
+        if post:
+            post.description = description
+            db.commit()
+            return post
     except Exception as e:
-        return {"message": f"Failed to update image description: {str(e)}"}
+        print(e)
 
 
-async def get_image_by_id(image_id: int):
+async def get_post_by_id(post_id: int, db: Session):
     try:
-        image = await Post.get(id=image_id)
-        return {"id": image.id, "url": image.url, "description": image.description}
+        post = db.query(Post).filter(
+            Post.id == post_id).first()
+        return post
     except Exception as e:
-        return {"message": f"Failed to get image by ID: {str(e)}"}
+        print(e)

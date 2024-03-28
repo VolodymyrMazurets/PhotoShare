@@ -20,7 +20,7 @@ const ConfirmEmail: React.FC = () => {
       return setIsSuccess(false);
     }
     axios
-      .get(`http://localhost:8000/api/auth/confirmed_email/${token}`)
+      .get(`http://localhost:8000/api/v1/auth/confirmed_email/${token}`)
       .then(() => {
         setIsSuccess(true);
       })
