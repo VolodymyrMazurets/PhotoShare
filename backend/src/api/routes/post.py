@@ -2,7 +2,7 @@ from fastapi import APIRouter, File, UploadFile, Depends
 from sqlalchemy.orm import Session
 from src.models import Post, User
 from src.core.db import get_db
-from src.schemas.posts import PostCreate, PostUpdate, PostDelete, PostModel, PostModelWithImage
+from src.schemas.posts import PostCreate, PostUpdate, PostDelete, PostModelWithImage, PostModelCreate
 from src.crud.post import upload_post_with_description, delete_post, update_post_description, get_post_by_id
 from src.services.auth import auth_service
 
@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.post("/upload-post", response_model=PostCreate)
-async def upload_post_route(user: User = Depends(auth_service.get_current_user), image: UploadFile = File(...), body: PostModel = Depends(PostModel), db: Session = Depends(get_db)):
+async def upload_post_route(user: User = Depends(auth_service.get_current_user), image: UploadFile = File(...), body: PostModelCreate = Depends(PostModelCreate), db: Session = Depends(get_db)):
     post = await upload_post_with_description(user, image, body, db)
     return {"post": post, "detail": "Post successfully created"}
 
@@ -30,4 +30,3 @@ async def update_post_description_route(post_id: int, description: str, user: Us
 @router.get("/get-post/{post_id}", response_model=PostModelWithImage)
 async def get_image_route(post_id: int, db: Session = Depends(get_db)):
     return await get_post_by_id(post_id, db)
-     

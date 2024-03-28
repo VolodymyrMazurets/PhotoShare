@@ -1,4 +1,5 @@
-from fastapi import File
+import json
+from fastapi import File, HTTPException
 import uuid
 import cloudinary
 import cloudinary.uploader
@@ -6,9 +7,10 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 
-from src.models import Post, User
-from src.schemas.posts import PostModel
+from src.models import Post, User, Tag
+from src.schemas.posts import PostModelCreate
 from src.core.config import settings
+from src.crud.tags import create_tag_if_not_exist
 
 cloudinary.config(
     cloud_name=settings.CLOUDINARY_CLOUD_NAME,
@@ -17,8 +19,18 @@ cloudinary.config(
 )
 
 
-async def upload_post_with_description(user: User, image: File, body: PostModel,  db: Session):
+async def upload_post_with_description(user: User, image: File, body: PostModelCreate,  db: Session):
+    if len(body.tags) > 5:
+        raise HTTPException(status_code=400, detail="Tags must be less than 5")
     try:
+        tags = json.loads(body.tags[0]) if len(body.tags) > 0 else []
+        tags_ids = []
+        for tag in tags:
+            t = create_tag_if_not_exist(tag, db)
+            tags_ids.append(t.id)
+
+        tags_from_db = db.query(Tag).filter(Tag.id.in_(tags_ids)).all()
+
         public_id = f"photo_share/{uuid.uuid4()}"
         upload_result = cloudinary.uploader.upload(
             image.file, public_id=public_id)
@@ -26,7 +38,7 @@ async def upload_post_with_description(user: User, image: File, body: PostModel,
             version=upload_result.get("version")
         )
         post = Post(title=body.title, description=body.description,
-                    image=res_url, user_id=user.id)
+                    image=res_url, user_id=user.id, tags=tags_from_db)
         db.add(post)
         db.commit()
         db.refresh(post)
@@ -61,9 +73,8 @@ async def update_post_description(post_id: int, description: str, user: User, db
 
 
 async def get_post_by_id(post_id: int, db: Session):
-    try:
-        post = db.query(Post).filter(
-            Post.id == post_id).first()
-        return post
-    except Exception as e:
-        print(e)
+    post = db.query(Post).filter(
+        Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return post
