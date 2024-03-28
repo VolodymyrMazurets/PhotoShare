@@ -25,6 +25,7 @@ type FieldType = {
   image?: {
     file: UploadFile;
   };
+  tags?: string;
 };
 
 export default function Page() {
@@ -38,9 +39,7 @@ export default function Page() {
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     const data = new FormData();
-    console.log(values.image);
-
-    data.append("tags", JSON.stringify(["test", "test1"] || []));
+    data.append("tags", values.tags || "");
     data.append("image", values.image?.file?.originFileObj || "");
     axios
       .post("http://localhost:8000/api/v1/upload-post", data, {
@@ -53,8 +52,6 @@ export default function Page() {
         },
       })
       .then((res) => {
-        console.log(res);
-
         toast.success("Post created successfully");
       })
       .catch((err) => {
@@ -107,7 +104,14 @@ export default function Page() {
                   { required: true, message: "Please input your password!" },
                 ]}
               >
-                <Input.Password />
+                <Input />
+              </Form.Item>
+
+              <Form.Item<FieldType>
+                label="Tags (comma separated)"
+                name="tags"
+              >
+                <Input />
               </Form.Item>
 
               <Form.Item<FieldType>

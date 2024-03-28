@@ -23,7 +23,7 @@ async def upload_post_with_description(user: User, image: File, body: PostModelC
     if len(body.tags) > 5:
         raise HTTPException(status_code=400, detail="Tags must be less than 5")
     try:
-        tags = json.loads(body.tags[0]) if len(body.tags) > 0 else []
+        tags = body.tags[0].split(",") if len(body.tags) > 0 else []
         tags_ids = []
         for tag in tags:
             t = create_tag_if_not_exist(tag, db)
