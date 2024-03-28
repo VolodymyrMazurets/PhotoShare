@@ -3,14 +3,14 @@ from typing import List
 from fastapi import Depends, HTTPException, status, Request
 
 from src.models import User
-from src.services.auth import service_auth
+from src.services.auth import auth_service
 
 class RoleRights:
     def __init__(self, allowed_roles: List[str]):
         self.allowed_roles = allowed_roles
 
     async def __call__(self, request: Request,
-                       current_user: User = Depends(service_auth.get_current_user)):
+                       current_user: User = Depends(auth_service.get_current_user)):
         """
         The __call__ function is a decorator that checks if the current user has one of the allowed roles.
         If not, it raises an HTTPException with status code 403 and a detail message.

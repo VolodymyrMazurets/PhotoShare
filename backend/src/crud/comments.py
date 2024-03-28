@@ -3,7 +3,7 @@ from typing import List
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
 
-from src.models import Comment, User, Image
+from src.models import Comment, User, Post
 from src.schemas.comments import CommentBase
 
 
@@ -141,4 +141,4 @@ async def get_image_by_id(image_id: int, db: Session):
     :param db: Session: Pass the database session to the function
     :return: A single image object from the database
     """
-    return db.query(Image).filter(Image.id == image_id).first()
+    return db.query(Post).filter(Post.id == image_id).first()
