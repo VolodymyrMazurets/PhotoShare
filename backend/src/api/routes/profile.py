@@ -10,8 +10,8 @@ from src.services.auth import auth_service
 router = APIRouter(prefix="/profile", tags=["profile"])
 
 @router.get('/user_info', response_model=UserResponseProfile)
-async def user_info(user: str, db: Session = Depends(get_db), current_user: User = Depends(auth_service.get_current_user)):
-    user = await repository_users.get_user_by_username(db, user, current_user)
+async def user_info(user: str, db: Session = Depends(get_db)):
+    user = await repository_users.get_user_by_username(db, user)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {'user': user}

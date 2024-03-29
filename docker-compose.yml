@@ -69,7 +69,9 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER?Variable not set}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
-      - CLOUDINARY_NAME=${CLOUDINARY_NAME}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - BACKEND_URL=${BACKEND_URL}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
     ports:
@@ -87,6 +89,8 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+    environment:
+      - BACKEND_URL=${BACKEND_URL}
     networks:
       - default
 

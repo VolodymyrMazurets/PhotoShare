@@ -3,6 +3,7 @@ from sqlalchemy.orm import DeclarativeBase, relationship
 from sqlalchemy.sql.schema import MetaData
 from sqlalchemy.sql.sqltypes import DateTime
 
+
 metadata = MetaData()
 
 
@@ -48,6 +49,7 @@ class User(BaseModel):
     role = Column(String, default="user")
     comments = relationship("Comment", back_populates="user")
     posts = relationship("Post", back_populates="user")
+    blacklisted_token = relationship('BlacklistedToken', back_populates='user')
 
 
 class Tag(BaseModel):
@@ -59,8 +61,8 @@ class Tag(BaseModel):
 class Post(BaseModel):
     __tablename__ = "posts"
     title = Column(String, index=True)
-    description = Column(String)
-    image = Column(String)
+    description = Column(String(255))
+    image = Column(String(255))
     user_id = Column(Integer, ForeignKey(
         'users.id', ondelete='CASCADE'), default=None)
     user = relationship("User", back_populates="posts")
@@ -78,3 +80,11 @@ class Comment(BaseModel):
         'posts.id', ondelete='CASCADE'), default=None)
     user = relationship("User", back_populates="comments")
     post = relationship("Post", back_populates="comments")
+        
+class BlacklistedToken(Base):
+    __tablename__ = 'blacklisted_tokens'
+
+    id = Column(Integer, primary_key=True)
+    blacklisted_token = Column(String(255), nullable=True)
+    user_id = Column('user_id', ForeignKey('users.id', ondelete='CASCADE'), unique=True)
+    user = relationship('User', back_populates='blacklisted_token')

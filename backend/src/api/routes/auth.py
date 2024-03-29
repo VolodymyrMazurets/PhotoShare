@@ -10,6 +10,7 @@ from src.crud import users as repository_users
 from src.services.auth import auth_service
 from src.models import User
 from src.constants.role import UserRole
+from src.core.config import settings
 
 router = APIRouter(prefix='/auth', tags=["auth"])
 security = HTTPBearer()
@@ -25,13 +26,14 @@ async def signup(body: UserModel, background_tasks: BackgroundTasks, request: Re
     body.password = auth_service.get_password_hash(body.password)
     new_user = await repository_users.create_user(body, db)
     background_tasks.add_task(
-        send_email, new_user.email, new_user.username, request.base_url)
+        send_email, new_user.email, new_user.username, settings.FRONTEND_URL)
     return {"user": new_user, "role": roles, "detail": "User successfully created. Check your email for confirmation."}
 
 
 @router.post("/login", response_model=TokenModel)
 async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = await repository_users.get_user_by_email(body.username, db)
+    print(body)
+    user = await repository_users.get_user_by_username(body.username, db)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email")
@@ -86,5 +88,5 @@ async def request_email(body: RequestEmail, background_tasks: BackgroundTasks, r
         return {"message": "Your email is already confirmed"}
     if user:
         background_tasks.add_task(
-            send_email, user.email, user.username, request.base_url)
+            send_email, user.email, user.username, settings.FRONTEND_URL)
     return {"message": "Check your email for confirmation."}
