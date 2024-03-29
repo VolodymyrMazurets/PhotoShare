@@ -9,7 +9,7 @@ from passlib.context import CryptContext
 
 from src.models import User
 from src.constants.role import UserRole
-from src.schemas.users import UserModel
+from src.schemas.users import UserModel, UserUpdate
 from src.core.config import settings
 from src.core.db import get_db
 
