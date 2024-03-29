@@ -1,18 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from src.models import User, Comment, Post
+from src.models import User, Comment
 from src.services.auth import auth_service
 from src.core.db import get_db
 from src.crud import comments as repository_comments
 from src.schemas import comments as schema_comments
-from src.services.roles import RoleRights
+from src.core.security import allowed_operation_any_user, allowed_operation_admin_moderator
 
 router = APIRouter(prefix='/posts/comments', tags=['comments'])
-
-allowed_operation_admin = RoleRights(["admin"])
-allowed_operation_any_user = RoleRights(["user", "moderator", "admin"])
-allowed_operation_admin_moderator = RoleRights(["admin", "moderator"])
-
 
 @router.post("/", status_code=200,
              response_model=schema_comments.CommentResponse,

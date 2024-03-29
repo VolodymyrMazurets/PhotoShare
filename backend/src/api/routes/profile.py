@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from src.core.db import get_db
 from src.models import User
-from src.schemas.users import UserResponseProfile, UserUpdate
+from src.schemas.users import UserResponseProfile, UserUpdate, UserDb
 from src.crud import users as repository_users
 from sqlalchemy.orm import Session
 from src.services.auth import auth_service
@@ -9,9 +9,13 @@ from src.services.auth import auth_service
 
 router = APIRouter(prefix="/profile", tags=["profile"])
 
-@router.get('/user_info', response_model=UserResponseProfile)
-async def user_info(user_name: str, db: Session = Depends(get_db)):
-    user = await repository_users.get_user_by_username(user_name, db)
+@router.get("/me", response_model=UserDb)
+async def read_users_me(current_user: User = Depends(auth_service.get_current_user)):
+    return current_user
+
+@router.get('/{username}', response_model=UserResponseProfile)
+async def user_info(username: str, db: Session = Depends(get_db)):
+    user = await repository_users.get_user_by_username(username, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {'user': user}

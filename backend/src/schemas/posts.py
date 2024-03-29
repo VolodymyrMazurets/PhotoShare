@@ -36,5 +36,4 @@ class PostUpdate(BaseModel):
 
 
 class PostDelete(BaseModel):
-    post: PostModelWithImage
     detail: str = "Post successfully deleted"

@@ -48,8 +48,12 @@ async def upload_post_with_description(user: User, image: File, body: PostModelC
 
 
 async def delete_post(post_id: int, user: User, db: Session):
-    post = db.query(Post).filter(
-        and_(Post.user_id == user.id, Post.id == post_id)).first()
+    if user.role == 'admin':
+        post = db.query(Post).filter(
+            and_(Post.id == post_id)).first()
+    else:
+        post = db.query(Post).filter(
+            and_(Post.id == post_id, Post.user_id == user.id)).first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     cloudinary.uploader.destroy(post.image)
@@ -59,8 +63,13 @@ async def delete_post(post_id: int, user: User, db: Session):
 
 
 async def update_post_description(post_id: int, description: str, user: User, db: Session):
-    post = db.query(Post).filter(
-        and_(Post.user_id == user.id, Post.id == post_id)).first()
+    if user.role == 'admin':
+        post = db.query(Post).filter(
+            and_(Post.id == post_id)).first()
+    else:
+        post = db.query(Post).filter(
+            and_(Post.id == post_id, Post.user_id == user.id)).first()
+
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     post.description = description
@@ -78,4 +87,9 @@ async def get_post_by_id(post_id: int, db: Session):
 
 async def get_posts_list(db: Session):
     posts = db.query(Post).all()
+    return posts
+
+
+async def get_own_posts_list(user: User, db: Session):
+    posts = db.query(Post).filter(user.id == Post.user_id).all()
     return posts

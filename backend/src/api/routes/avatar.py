@@ -11,12 +11,7 @@ from src.core.config import settings
 
 router = APIRouter(prefix="/avatar", tags=["avatar"])
 
-@router.get("/me/", response_model=UserDb)
-async def read_users_me(current_user: User = Depends(auth_service.get_current_user)):
-    return current_user
-
-
-@router.patch('/avatar', response_model=UserDb)
+@router.patch('/', response_model=UserDb)
 async def update_avatar_user(file: UploadFile = File(), current_user: User = Depends(auth_service.get_current_user),
                              db: Session = Depends(get_db)):
     cloudinary.config(

@@ -27,6 +27,10 @@ async def get_user_by_username(username: str, db: Session) -> User:
     return db.query(User).filter(User.username == username).first()
 
 
+async def get_user_by_email_or_username(email: str, username: str, db: Session) -> User:
+    return db.query(User).filter(or_(User.email == email, User.username == username)).first()
+
+
 async def create_user(body: UserModel, db: Session) -> User:
     avatar = None
     try:

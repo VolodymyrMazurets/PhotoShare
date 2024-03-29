@@ -3,9 +3,9 @@ from datetime import datetime
 
 
 class UserModel(BaseModel):
-    username: str = Field(min_length=5, max_length=16)
+    username: str = Field(min_length=5, max_length=255)
     email: EmailStr
-    password: str = Field(min_length=6, max_length=10)
+    password: str = Field(min_length=6, max_length=255)
 
 
 class UserDb(BaseModel):
@@ -28,9 +28,8 @@ class UserResponse(BaseModel):
 class UserResponseProfile(BaseModel):
     user: UserDb
     detail: str = "Info about user"
-    image_count: int = 0
 
 
 class UserUpdate(BaseModel):
-    username: str = Field(min_length=5, max_length=16)
+    username: str = Field(min_length=5, max_length=255)
     email: EmailStr
