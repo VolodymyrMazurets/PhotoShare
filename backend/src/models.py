@@ -39,7 +39,7 @@ class BaseModel(Base):
 
 class User(BaseModel):
     __tablename__ = "users"
-    username = Column(String(50))
+    username = Column(String(50), unique=True)
     email = Column(String(250), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
     avatar = Column(String(255), nullable=True)
