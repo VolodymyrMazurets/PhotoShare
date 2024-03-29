@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = 'HS256'
     FRONTEND_URL: str = 'http://localhost:3000'
     BACKEND_URL: str = 'http://localhost:8000'
+    ADMINER_URL: str = 'http://localhost:8080/?pgsql=localhost&username=&db=&ns=&passwd='
 
     @computed_field  # type: ignore[misc]
     @property

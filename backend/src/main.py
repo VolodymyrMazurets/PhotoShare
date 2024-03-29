@@ -30,4 +30,4 @@ templates = Jinja2Templates(directory=str(Path(BASE_DIR, 'templates')))
 
 @app.get("/", response_class=HTMLResponse)
 def read_root(request: Request):
-    return templates.TemplateResponse(request=request, name="home.html", context={"FRONTEND_URL": settings.FRONTEND_URL, "BACKEND_URL": settings.BACKEND_URL})
+    return templates.TemplateResponse(request=request, name="home.html", context={"FRONTEND_URL": settings.FRONTEND_URL, "BACKEND_URL": settings.BACKEND_URL, "ADMINER_URL": settings.ADMINER_URL})

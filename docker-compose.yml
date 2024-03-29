@@ -58,7 +58,11 @@ services:
       - /app/.venv
     environment:
       - DOMAIN=${DOMAIN}
+      - API_V1_STR=${API_V1_STR}
       - ENVIRONMENT=${ENVIRONMENT}
+      - PROJECT_NAME=${PROJECT_NAME}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=${ALGORITHM}
       - SMTP_HOST=${SMTP_HOST}
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASSWORD=${SMTP_PASSWORD}
@@ -69,8 +73,12 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER?Variable not set}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
       - FRONTEND_URL=${FRONTEND_URL}
       - BACKEND_URL=${BACKEND_URL}
+      - ADMINER_URL=${ADMINER_URL}
       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
@@ -82,6 +90,7 @@ services:
   frontend:
     build: './frontend'
     restart: always
+    env_file: .env
     volumes:
       - /app/node_modules
       - ./frontend:/app
@@ -91,6 +100,7 @@ services:
       - backend
     environment:
       - BACKEND_URL=${BACKEND_URL}
+      - API_V1_STR=${API_V1_STR}
     networks:
       - default
 
