@@ -63,6 +63,9 @@ class Post(BaseModel):
     title = Column(String, index=True)
     description = Column(String(255))
     image = Column(String(255))
+    image_public_id = Column(String(255))
+    transformed_image = Column(String(255), default=None)
+    transformed_image_qr = Column(String(255), default=None)
     user_id = Column(Integer, ForeignKey(
         'users.id', ondelete='CASCADE'), default=None)
     user = relationship("User", back_populates="posts")

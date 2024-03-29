@@ -4,19 +4,20 @@ from sqlalchemy.orm import Session
 from src.models import User
 from src.core.db import get_db
 from src.schemas.posts import PostCreate, PostUpdate, PostDelete, PostModelWithImage, PostModelCreate
-from src.crud.post import upload_post_with_description, delete_post, update_post_description, get_post_by_id, get_posts_list, get_own_posts_list
+from src.crud.post import upload_post_with_description, delete_post, update_post_description, get_post_by_id, get_posts_list, get_own_posts_list, transform_image
 from src.services.auth import auth_service
 
 router = APIRouter(prefix="/posts", tags=["posts"])
+
 
 @router.get("/", response_model=List[PostModelWithImage])
 async def get_all_own_posts(user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
     return await get_own_posts_list(user, db)
 
+
 @router.get("/all", response_model=List[PostModelWithImage])
 async def get_all_posts(db: Session = Depends(get_db)):
     return await get_posts_list(db)
-
 
 
 @router.post("/", response_model=PostCreate)
@@ -40,3 +41,9 @@ async def update_post(post_id: int, description: str, user: User = Depends(auth_
 @router.get("/{post_id}", response_model=PostModelWithImage)
 async def get_specific_post(post_id: int, db: Session = Depends(get_db)):
     return await get_post_by_id(post_id, db)
+
+
+@router.post("/{post_id}", response_model=PostModelWithImage)
+async def transform_post_image(post_id: int, user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db), gravity: str | None = None, height: int | None = None, width: int | None = None, radius: str | None = None):
+    return await transform_image(post_id, user, db, gravity, height, width, radius)
+

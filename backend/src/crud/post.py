@@ -1,4 +1,5 @@
-import json
+from tempfile import NamedTemporaryFile
+from qrcode import QRCode
 from fastapi import File, HTTPException
 import uuid
 import cloudinary
@@ -38,7 +39,7 @@ async def upload_post_with_description(user: User, image: File, body: PostModelC
             version=upload_result.get("version")
         )
         post = Post(title=body.title, description=body.description,
-                    image=res_url, user_id=user.id, tags=tags_from_db)
+                    image=res_url, user_id=user.id, tags=tags_from_db, image_public_id=public_id)
         db.add(post)
         db.commit()
         db.refresh(post)
@@ -93,3 +94,31 @@ async def get_posts_list(db: Session):
 async def get_own_posts_list(user: User, db: Session):
     posts = db.query(Post).filter(user.id == Post.user_id).all()
     return posts
+
+
+async def transform_image(post_id: int, user: User, db: Session, gravity: str | None = None, height: int | None = None, width: int | None = None, radius: str | None = None):
+    post = await get_post_by_id(post_id, db)
+    if (post):
+        transformed_image_url = cloudinary.CloudinaryImage(post.image_public_id).build_url(transformation=[
+            {'gravity': gravity, 'height': height,
+                'width': width, 'crop': "thumb"},
+            {'radius': radius},
+            {'fetch_format': "auto"}
+        ])
+
+        qr = QRCode(version=3, box_size=20, border=10)
+        data = transformed_image_url
+        qr.add_data(data)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white")
+        temp_file = NamedTemporaryFile(delete=True)
+        img.save(temp_file.name)
+        upload_result = cloudinary.uploader.upload(
+            temp_file.file, public_id=post.image_public_id + "_qr")
+        res_url = cloudinary.CloudinaryImage(post.image_public_id + "_qr").build_url(
+            version=upload_result.get("version")
+        )
+        post.transformed_image = transformed_image_url
+        post.transformed_image_qr = res_url
+        db.commit()
+        return post
