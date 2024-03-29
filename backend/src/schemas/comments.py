@@ -5,14 +5,14 @@ from pydantic import BaseModel, Field
 
 
 class CommentModel(BaseModel):
-    comment: str = Field(max_length=100)
-    image_id: int = Field(ge=1)
+    content: str = Field(max_length=100)
+    post_id: int = Field(ge=1)
 
 
 class CommentResponse(BaseModel):
     id: int
-    comment: str
-    image_id: int
+    content: str
+    post_id: int
     created_at: datetime
     updated_at: Optional[datetime]
 
