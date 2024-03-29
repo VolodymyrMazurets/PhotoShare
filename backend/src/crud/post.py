@@ -74,3 +74,8 @@ async def get_post_by_id(post_id: int, db: Session):
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     return post
+
+
+async def get_posts_list(db: Session):
+    posts = db.query(Post).all()
+    return posts
