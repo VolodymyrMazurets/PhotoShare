@@ -9,8 +9,8 @@ COMMENT_NOT_CREATED = "Comment not created!"
 USER_NOT_FOUND = "User not found"
 USER_INVALID_ROLE = "User Invalid role"
 USER_CANT_OPERATE_HIMSELF = "Can't operate with himself"
-USER_ACCEPTED = "accepted"
-USER_NOT_CHANGED = "not changed"
+USER_ACCEPTED = "Accepted"
+USER_NOT_CHANGED = "Not changed"
 
 # auth
 AUTH_INVALID_CAPTCHA = "Invalid captcha"
@@ -34,3 +34,6 @@ AUTH_INVALID_TOKEN_SCOPE = "Invalid scope for token"
 
 # image
 IMAGE_NOT_FOUND = "Image not found!"
+
+# common
+BAD_REQUEST = "Cant process request"
