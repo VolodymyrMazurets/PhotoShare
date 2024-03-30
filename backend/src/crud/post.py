@@ -1,17 +1,16 @@
-from tempfile import NamedTemporaryFile
-from qrcode import QRCode
-from fastapi import File, HTTPException
 import uuid
 import cloudinary
 import cloudinary.uploader
-from sqlalchemy import and_
+from tempfile import NamedTemporaryFile
+from qrcode import QRCode
+from fastapi import File, HTTPException, status
 from sqlalchemy.orm import Session
-
 
 from src.models import Post, User, Tag
 from src.schemas.posts import PostModelCreate
 from src.core.config import settings
 from src.crud.tags import create_tag_if_not_exist
+from src.constants.messages import UNPROCESSABLE_ENTITY, BAD_REQUEST, POST_NOT_FOUND, OPERATION_FORBIDDEN, POST_NO_TRANSFORMED_IMAGE
 
 cloudinary.config(
     cloud_name=settings.CLOUDINARY_CLOUD_NAME,
@@ -22,16 +21,15 @@ cloudinary.config(
 
 async def upload_post_with_description(user: User, image: File, body: PostModelCreate,  db: Session):
     if len(body.tags) > 5:
-        raise HTTPException(status_code=400, detail="Tags must be less than 5")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=UNPROCESSABLE_ENTITY)
     try:
         tags = body.tags[0].split(",") if len(body.tags) > 0 else []
         tags_ids = []
         for tag in tags:
             t = create_tag_if_not_exist(tag, db)
             tags_ids.append(t.id)
-
         tags_from_db = db.query(Tag).filter(Tag.id.in_(tags_ids)).all()
-
         public_id = f"photo_share/{uuid.uuid4()}"
         upload_result = cloudinary.uploader.upload(
             image.file, public_id=public_id)
@@ -45,80 +43,119 @@ async def upload_post_with_description(user: User, image: File, body: PostModelC
         db.refresh(post)
         return post
     except Exception as e:
-        print(e)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
 
 
 async def delete_post(post_id: int, user: User, db: Session):
-    if user.role == 'admin':
-        post = db.query(Post).filter(
-            and_(Post.id == post_id)).first()
-    else:
-        post = db.query(Post).filter(
-            and_(Post.id == post_id, Post.user_id == user.id)).first()
-    if not post:
-        raise HTTPException(status_code=404, detail="Post not found")
-    cloudinary.uploader.destroy(post.image)
-    db.delete(post)
-    db.commit()
-    return post
+    post = await get_post_by_id(post_id, db)
+    check_permission(user.role, post.user_id, user.id)
+    try:
+        cloudinary.uploader.destroy(post.image_public_id)
+        db.delete(post)
+        db.commit()
+        return post
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
 
 
 async def update_post_description(post_id: int, description: str, user: User, db: Session):
-    if user.role == 'admin':
-        post = db.query(Post).filter(
-            and_(Post.id == post_id)).first()
-    else:
-        post = db.query(Post).filter(
-            and_(Post.id == post_id, Post.user_id == user.id)).first()
-
-    if not post:
-        raise HTTPException(status_code=404, detail="Post not found")
-    post.description = description
-    db.commit()
-    return post
+    post = await get_post_by_id(post_id, db)
+    check_permission(user.role, post.user_id, user.id)
+    try:
+        post.description = description
+        db.commit()
+        db.refresh(post)
+        return post
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
 
 
 async def get_post_by_id(post_id: int, db: Session):
     post = db.query(Post).filter(
         Post.id == post_id).first()
     if not post:
-        raise HTTPException(status_code=404, detail="Post not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=POST_NOT_FOUND)
     return post
 
 
 async def get_posts_list(db: Session):
-    posts = db.query(Post).all()
-    return posts
+    try:
+        return db.query(Post).all()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
 
 
 async def get_own_posts_list(user: User, db: Session):
-    posts = db.query(Post).filter(user.id == Post.user_id).all()
-    return posts
+    try:
+        return db.query(Post).filter(user.id == Post.user_id).all()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
 
 
 async def transform_image(post_id: int, user: User, db: Session, gravity: str | None = None, height: int | None = None, width: int | None = None, radius: str | None = None):
     post = await get_post_by_id(post_id, db)
-    if (post):
+    check_permission(user.role, post.user_id, user.id)
+    try:
         transformed_image_url = cloudinary.CloudinaryImage(post.image_public_id).build_url(transformation=[
             {'gravity': gravity, 'height': height,
                 'width': width, 'crop': "thumb"},
             {'radius': radius},
             {'fetch_format': "auto"}
         ])
-
-        qr = QRCode(version=3, box_size=20, border=10)
-        data = transformed_image_url
-        qr.add_data(data)
-        qr.make(fit=True)
-        img = qr.make_image(fill_color="black", back_color="white")
-        temp_file = NamedTemporaryFile(delete=True)
-        img.save(temp_file.name)
-        upload_result = cloudinary.uploader.upload(
-            temp_file.file, public_id=post.image_public_id + "_qr")
-        res_url = cloudinary.CloudinaryImage(post.image_public_id + "_qr").build_url(
-            version=upload_result.get("version")
-        )
         post.transformed_image = transformed_image_url
-        post.transformed_image_qr = res_url
         db.commit()
-        return post
+        db.refresh(post)
+        return post.transformed_image
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
+
+
+def create_qr_code(url: str):
+    try:
+        qr = QRCode(version=3, box_size=20, border=10)
+        qr_data = url
+        qr.add_data(qr_data)
+        qr.make(fit=True)
+        qr_img = qr.make_image(fill_color="black", back_color="white")
+        qr_temp_file = NamedTemporaryFile(delete=True)
+        qr_img.save(qr_temp_file.name)
+        return qr_temp_file
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
+
+
+async def generate_and_get_qr_code(post_id: int, user: User, db: Session):
+    post = await get_post_by_id(post_id, db)
+    check_permission(user.role, post.user_id, user.id)
+    if not post.transformed_image:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=POST_NO_TRANSFORMED_IMAGE)
+    qr_temp_file = create_qr_code(post.transformed_image)
+    try:
+        upload_result = cloudinary.uploader.upload(
+            qr_temp_file.file, public_id=post.image_public_id + "_qr")
+        upload_result_url = cloudinary.CloudinaryImage(
+            post.image_public_id + "_qr").build_url(version=upload_result.get("version"))
+        post.transformed_image_qr = upload_result_url
+        db.commit()
+        db.refresh(post)
+        return post.transformed_image_qr
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
+
+
+def check_permission(user_role, post_user_id, current_user_id):
+    if user_role not in ['admin', 'moderator'] and post_user_id != current_user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=OPERATION_FORBIDDEN
+        )

@@ -2,7 +2,7 @@
 import cloudinary
 import cloudinary.uploader
 
-from fastapi import File, HTTPException
+from fastapi import File, status, HTTPException
 from sqlalchemy.orm import Session
 
 from src.models import User
@@ -23,7 +23,8 @@ async def update_avatar(file: File, current_user: User, db: Session):
         r = cloudinary.uploader.upload(
             file.file, public_id=f'photo_share/{current_user.username}', overwrite=True)
         src_url = cloudinary.CloudinaryImage(f'photo_share/{current_user.username}')\
-                            .build_url(width=250, height=250, crop='fill', version=r.get('version'))
-        return await update_ava(current_user.email, src_url, db)
+            .build_url(width=250, height=250, crop='fill', version=r.get('version'))
     except Exception as e:
-        raise HTTPException(status_code=400, detail=BAD_REQUEST)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
+    return await update_ava(current_user.email, src_url, db)

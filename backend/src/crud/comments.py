@@ -1,10 +1,12 @@
 from typing import List
-
-from sqlalchemy import or_, and_
+from fastapi import HTTPException, status
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from src.models import Comment, User, Post
-from src.schemas.comments import CommentBase, CommentModel, CommentUpdate
+from src.schemas.comments import CommentModel, CommentUpdate
+from src.constants.messages import BAD_REQUEST, COMMENT_NOT_FOUND
+from src.crud.post import get_post_by_id
 
 
 async def get_comments(
@@ -20,18 +22,16 @@ async def get_comments(
     :param db: Session: Pass the database session to the function
     :return: A list of comment objects
     """
-    return (
-        db.query(Comment)
-        .filter(Comment.post_id == post_id)
-        .limit(limit)
-        .offset(offset)
-        .all()
-    )
+    try:
+        comments = db.query(Comment).filter(
+            Comment.post_id == post_id).limit(limit).offset(offset).all()
+        return comments
+    except Exception as err:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
 
 
-async def get_comment_by_id(
-    comment_id: int, db: Session
-) -> Comment | None:
+async def get_comment_by_id(comment_id: int, db: Session) -> Comment | None:
     """
     The get_comment_by_id function returns a comment by its id.
 
@@ -40,16 +40,14 @@ async def get_comment_by_id(
     :param db: Session: Pass the database session to the function
     :return: A comment object or none
     """
-    return (
-        db.query(Comment)
-        .filter(Comment.id == comment_id)
-        .first()
-    )
+    comment = db.query(Comment).filter(Comment.id == comment_id).first()
+    if not comment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=COMMENT_NOT_FOUND)
+    return comment
 
 
-async def create_comment(
-    body: CommentModel, user: User, db: Session
-) -> Comment | None:
+async def create_comment(body: CommentModel, user: User, db: Session) -> Comment | None:
     """
     The create_comment function creates a new comment for an image.
 
@@ -59,15 +57,16 @@ async def create_comment(
     :param db: Session: Pass in the database session
     :return: A comment object
     """
+    post = await get_post_by_id(body.post_id, db)
     try:
-        post = db.query(Post).filter(Post.id == body.post_id).first()
         comment = Comment(user=user, post=post, content=body.content)
         db.add(comment)
         db.commit()
         db.refresh(comment)
         return comment
     except Exception as err:
-        print(f"create_comment {err=}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
 
 
 async def update_comment(
@@ -83,22 +82,18 @@ async def update_comment(
     :param db: Session: Access the database
     :return: A comment object or none
     """
-    comment = (
-        db.query(Comment)
-        .filter(
-            and_(
-                Comment.id == comment_id,
-                Comment.user_id == user.id,
-            )
-        )
-        .first()
-    )
-
-    if comment:
+    comment = db.query(Comment).filter(
+        and_(Comment.id == comment_id, Comment.user_id == user.id)).first()
+    if not comment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=COMMENT_NOT_FOUND)
+    try:
         comment.content = body.new_comment
         db.commit()
-
-    return comment
+        return comment
+    except Exception as err:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
 
 
 async def remove_comment(
@@ -113,30 +108,15 @@ async def remove_comment(
     :param db: Session: Access the database
     :return: A comment object or none
     """
-    comment = (
-        db.query(Comment)
-        .filter(
-            and_(
-                Comment.id == comment_id,
-            )
-        )
-        .first()
-    )
-
-    if comment:
+    comment = db.query(Comment).filter(Comment.id == comment_id).first()
+    if not comment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=COMMENT_NOT_FOUND)
+    try:
         db.delete(comment)
         db.commit()
-
-    return comment
-
-
-async def get_image_by_id(post_id: int, db: Session):
-    """
-    The get_image_by_id function returns an image object from the database, given its id.
-
-
-    :param post_id: int: Specify the id of the image that is being requested
-    :param db: Session: Pass the database session to the function
-    :return: A single image object from the database
-    """
-    return db.query(Post).filter(Post.id == post_id).first()
+        return comment
+    except Exception as err:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
+    
