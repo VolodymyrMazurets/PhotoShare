@@ -8,47 +8,55 @@ import {
   Col,
   Row,
   Typography,
+  Upload,
+  UploadFile,
 } from "antd";
 import axios from "axios";
-import { generateFormDataFromObject, parseJwt } from "@/utils";
+import { deleteCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
+import { getCookie } from "cookies-next";
 import { toast } from "react-toastify";
-import { setCookie } from "cookies-next";
-import {fromUnixTime} from 'date-fns';
-
-type FieldType = {
-  username?: string;
-  password?: string;
-};
 
 const { Title } = Typography;
 
-const Login: React.FC = () => {
+type FieldType = {
+  title?: string;
+  description?: string;
+  image?: {
+    file: UploadFile;
+  };
+  tags?: string;
+};
+
+export default function CreatePost() {
   const router = useRouter();
 
+  const onLogoutClick = () => {
+    deleteCookie("token");
+    deleteCookie("refresh_token");
+    router.push("/login");
+  };
+
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    const data = generateFormDataFromObject(values);
+    const data = new FormData();
+    data.append("tags", values.tags || "");
+    data.append("image", values.image?.file?.originFileObj || "");
     axios
-      .post("http://localhost:8000/api/v1/auth/login", data)
+      .post("http://localhost:8000/api/v1/upload-post", data, {
+        headers: {
+          Authorization: `Bearer ${getCookie("token")}`,
+        },
+        params: {
+          title: values.title,
+          description: values.description,
+        },
+      })
       .then((res) => {
-        setCookie("token", res.data.access_token, {expires: fromUnixTime(parseJwt(res.data.access_token)?.exp)});
-        setCookie("refresh_token", res.data.refresh_token);
-        toast.success("Login successfully!");
-        router.push("/");
+        toast.success("Post created successfully");
       })
       .catch((err) => {
         toast.error(err.response.data.detail || "Something going wrong!");
       });
-  };
-
-  const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
-    errorInfo
-  ) => {
-    console.log("Failed:", errorInfo);
-  };
-
-  const onSignUpClick = () => {
-    router.push("/signup");
   };
 
   return (
@@ -72,36 +80,48 @@ const Login: React.FC = () => {
               backgroundColor: "white",
             }}
           >
-            <Title level={2} style={{ marginBottom: 32 }}>
-              Login to PhotoShare
-            </Title>
+            <Title level={2}>Welcome to the app</Title>
             <Form
               name="basic"
               style={{ width: "100%" }}
               initialValues={{ remember: true }}
               onFinish={onFinish}
-              onFinishFailed={onFinishFailed}
               autoComplete="off"
               layout="vertical"
             >
               <Form.Item<FieldType>
-                label="Username"
-                name="username"
+                label="Title"
+                name="title"
+                rules={[{ required: true, message: "Please input title!" }]}
+              >
+                <Input />
+              </Form.Item>
+
+              <Form.Item<FieldType>
+                label="Description"
+                name="description"
                 rules={[
-                  { required: true, message: "Please input your username!" },
+                  { required: true, message: "Please input your password!" },
                 ]}
               >
                 <Input />
               </Form.Item>
 
               <Form.Item<FieldType>
-                label="Password"
-                name="password"
-                rules={[
-                  { required: true, message: "Please input your password!" },
-                ]}
+                label="Tags (comma separated)"
+                name="tags"
               >
-                <Input.Password />
+                <Input />
+              </Form.Item>
+
+              <Form.Item<FieldType>
+                label="Image"
+                name="image"
+                rules={[{ required: true }]}
+              >
+                <Upload>
+                  <Button>Click to Upload</Button>
+                </Upload>
               </Form.Item>
 
               <Form.Item wrapperCol={{ span: 24 }}>
@@ -110,18 +130,16 @@ const Login: React.FC = () => {
                   type="primary"
                   htmlType="submit"
                 >
-                  Login
+                  Create
                 </Button>
               </Form.Item>
+              <Button style={{ width: "100%" }} onClick={onLogoutClick}>
+                Logout
+              </Button>
             </Form>
-            <Button type="link" onClick={onSignUpClick}>
-              Sign up fo an account
-            </Button>
           </div>
         </Col>
       </Row>
     </div>
   );
-};
-
-export default Login;
+}
