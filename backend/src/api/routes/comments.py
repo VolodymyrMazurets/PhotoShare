@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from src.models import User, Comment
+from src.models import User
 from src.services.auth import auth_service
 from src.core.db import get_db
 from src.crud import comments as repository_comments
@@ -9,13 +9,9 @@ from src.core.security import allowed_operation_any_user, allowed_operation_admi
 
 router = APIRouter(prefix='/posts/comments', tags=['comments'])
 
-@router.post("/", status_code=200,
-             response_model=schema_comments.CommentResponse,
-             dependencies=[Depends(allowed_operation_any_user)])
-async def add_comment(body: schema_comments.CommentModel,
-                      current_user: User = Depends(
-                          auth_service.get_current_user),
-                      db: Session = Depends(get_db)):
+
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schema_comments.CommentResponse, dependencies=[Depends(allowed_operation_any_user)])
+async def add_comment(body: schema_comments.CommentModel, current_user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
     """
     The add_comment function creates a new comment for an image.
         The function takes in the following parameters:
@@ -28,20 +24,11 @@ async def add_comment(body: schema_comments.CommentModel,
     :param db: Session: Access the database
     :return: A comment object
     """
-    # image: Post | None = await repository_images.get_image_by_id(db=db, image_id=body.image_id)
-    # if not image:
-    #     raise HTTPException(status_code=404, detail="Image doesn't exist")
-    # if image.user_id == current_user.id:
-    #     raise HTTPException(status_code=403, detail="You can't comment your own image")
-    comment: Comment = await repository_comments.create_comment(body=body, user=current_user, db=db)
-    return comment
+    return await repository_comments.create_comment(body=body, user=current_user, db=db)
 
 
-@router.get("/{comment_id}", status_code=200,
-            response_model=schema_comments.CommentResponse,
-            dependencies=[Depends(allowed_operation_any_user)])
-async def read_comment(comment_id: int,
-                       db: Session = Depends(get_db)):
+@router.get("/{comment_id}", status_code=status.HTTP_200_OK, response_model=schema_comments.CommentResponse, dependencies=[Depends(allowed_operation_any_user)])
+async def read_comment(comment_id: int, db: Session = Depends(get_db)):
     """
     The read_comment function returns a comment by its id.
         The function will return an HTTP 404 error if the comment doesn't exist.
@@ -51,20 +38,11 @@ async def read_comment(comment_id: int,
     :param db: Session: Get a database session from the dependency injection container
     :return: A comment object
     """
-    comment: Comment = await repository_comments.get_comment_by_id(comment_id=comment_id, db=db)
-    if not comment:
-        raise HTTPException(status_code=404, detail="Comment doesn't exist")
-    return comment
+    return await repository_comments.get_comment_by_id(comment_id=comment_id, db=db)
 
 
-@router.patch("/{comment_id}", status_code=200,
-              response_model=schema_comments.CommentResponse,
-              dependencies=[Depends(allowed_operation_any_user)])
-async def update_comment(comment_id: int,
-                         body: schema_comments.CommentUpdate,
-                         current_user: User = Depends(
-                             auth_service.get_current_user),
-                         db: Session = Depends(get_db)):
+@router.patch("/{comment_id}", status_code=200, response_model=schema_comments.CommentResponse, dependencies=[Depends(allowed_operation_any_user)])
+async def update_comment(comment_id: int, body: schema_comments.CommentUpdate, current_user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
     """
     The update_comment function updates a comment in the database.
         Args:
@@ -79,22 +57,11 @@ async def update_comment(comment_id: int,
     :param db: Session: Pass the database connection
     :return: A comment object
     """
-    # exist_comment: Comment = await repository_comments.get_comment_by_id(comment_id=comment_id, db=db)
-    # if not exist_comment:
-    #     raise HTTPException(status_code=404, detail="Comment not found")
-    # if exist_comment.user_id != current_user.id and current_user.role not in allowed_operation_admin_moderator.allowed_roles:
-    #     raise HTTPException(
-    #         status_code=403, detail="You don't have access to update others comments")
-    updated_comment: Comment = await repository_comments.update_comment(comment_id=comment_id, user=current_user, body=body, db=db)
-    return updated_comment
+    return await repository_comments.update_comment(comment_id=comment_id, user=current_user, body=body, db=db)
 
 
-@router.delete("/{comment_id}", status_code=200,
-               dependencies=[Depends(allowed_operation_admin_moderator)])
-async def delete_comment(comment_id: int,
-                         current_user: User = Depends(
-                             auth_service.get_current_user),
-                         db: Session = Depends(get_db)):
+@router.delete("/{comment_id}", status_code=200, dependencies=[Depends(allowed_operation_admin_moderator)])
+async def delete_comment(comment_id: int, db: Session = Depends(get_db)):
     """
     The update_comment function updates a comment by deleting it.
         Args:
@@ -107,8 +74,4 @@ async def delete_comment(comment_id: int,
     :param db: Session: Pass the database session to the function
     :return: A dictionary with the deleted comment
     """
-    exist_comment: Comment = await repository_comments.get_comment_by_id(comment_id=comment_id, db=db)
-    if not exist_comment:
-        raise HTTPException(status_code=404, detail="Comment not found")
-    return await repository_comments.remove_comment(comment_id=exist_comment.id, db=db)
-     
+    return await repository_comments.get_comment_by_id(comment_id=comment_id, db=db)

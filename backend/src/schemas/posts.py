@@ -6,6 +6,7 @@ from src.schemas.tags import TagResponse
 from src.schemas.users import UserDb
 from src.schemas.comments import CommentResponse
 
+
 class PostModel(BaseModel):
     title: str = Field(min_length=1, max_length=255)
     description: str = Field(min_length=1, max_length=255)
@@ -39,6 +40,12 @@ class PostUpdate(BaseModel):
 class PostDelete(BaseModel):
     detail: str = "Post successfully deleted"
 
+
 class PostTransformImage(BaseModel):
     image: str
-    detail: str = "Post successfully transformed"
+    detail: str = "Post image successfully transformed"
+
+
+class PostTransformImageQR(BaseModel):
+    image: str
+    detail: str = "QR code successfully generated"
