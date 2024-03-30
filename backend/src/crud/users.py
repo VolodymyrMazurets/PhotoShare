@@ -39,9 +39,6 @@ async def get_user_by_username(username: str, db: Session) -> User:
 async def get_user_by_email_or_username(email: str, username: str, db: Session) -> User:
     user = db.query(User).filter(
         or_(User.email == email, User.username == username)).first()
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=AUTH_CANT_FIND_USER)
     return user
 
 
