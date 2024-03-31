@@ -7,12 +7,12 @@ from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 
-from models import User
-from constants.role import UserRole
-from schemas.users import UserModel, UserUpdate
-from core.config import settings
-from core.db import get_db
-from constants.messages import AUTH_CANT_FIND_USER, OPERATION_FORBIDDEN
+from src.models import User
+from src.constants.role import UserRole
+from src.schemas.users import UserModel, UserUpdate
+from src.core.config import settings
+from src.core.db import get_db
+from src.constants.messages import AUTH_CANT_FIND_USER, OPERATION_FORBIDDEN
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY = settings.SECRET_KEY
