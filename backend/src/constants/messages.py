@@ -32,6 +32,7 @@ AUTH_NOT_VALID_CRED = "Could not validate credentials"
 AUTH_INVALID_TOKEN_EMAIL_VERIFY = "Invalid token for email verification"
 AUTH_INVALID_TOKEN_SCOPE = "Invalid scope for token"
 AUTH_CANT_FIND_USER = "Can't find user"
+AUTH_BANNED = "User is banned"
 
 # post
 POST_NOT_FOUND = "Post not found!"

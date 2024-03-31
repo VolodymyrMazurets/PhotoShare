@@ -11,7 +11,8 @@ from src.services.auth import auth_service
 from src.models import User
 from src.constants.role import UserRole
 from src.core.config import settings
-from src.constants.messages import AUTH_EMAIL_NOT_CONF, AUTH_ALREADY_EXIST, AUTH_INVALID_REF_TOKEN, AUTH_CANT_FIND_USER, AUTH_INVALID_PASSWORD
+from src.constants.messages import AUTH_EMAIL_NOT_CONF, AUTH_ALREADY_EXIST, AUTH_INVALID_REF_TOKEN, AUTH_CANT_FIND_USER, AUTH_INVALID_PASSWORD, AUTH_BANNED
+from src.core.security import  allowed_operation_admin
 
 router = APIRouter(prefix='/auth', tags=["auth"])
 security = HTTPBearer()
@@ -35,6 +36,9 @@ async def signup(body: UserModel, background_tasks: BackgroundTasks, request: Re
 async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     print(body)
     user = await repository_users.get_user_by_username(body.username, db)
+    if not user.active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=AUTH_BANNED)
     if not user.confirmed:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=AUTH_EMAIL_NOT_CONF)
@@ -88,3 +92,11 @@ async def request_email(body: RequestEmail, background_tasks: BackgroundTasks, r
         background_tasks.add_task(
             send_email, user.email, user.username, settings.FRONTEND_URL)
     return {"message": "Check your email for confirmation."}
+
+
+@router.post("/toggle_user_status/{user_id}", dependencies=[Depends(allowed_operation_admin)])
+async def toggle_user_status(user_id: int, db: Session = Depends(get_db)):
+    user = await repository_users.toggle_user_status(user_id, db)
+    if user.active:
+        return {"message": "User has been unbanned"}
+    return {"message": "User has been banned"}
