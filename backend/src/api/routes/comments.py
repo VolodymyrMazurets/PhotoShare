@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status
+from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.orm import Session
 from src.models import User
 from src.services.auth import auth_service
@@ -10,7 +11,7 @@ from src.core.security import allowed_operation_any_user, allowed_operation_admi
 router = APIRouter(prefix='/posts/comments', tags=['comments'])
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schema_comments.CommentResponse, dependencies=[Depends(allowed_operation_any_user)])
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=schema_comments.CommentResponse, dependencies=[Depends(allowed_operation_any_user), Depends(RateLimiter(times=10, seconds=60))])
 async def add_comment(body: schema_comments.CommentModel, current_user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
     """
     The add_comment function creates a new comment for an image.
@@ -27,7 +28,7 @@ async def add_comment(body: schema_comments.CommentModel, current_user: User = D
     return await repository_comments.create_comment(body=body, user=current_user, db=db)
 
 
-@router.get("/{comment_id}", status_code=status.HTTP_200_OK, response_model=schema_comments.CommentResponse, dependencies=[Depends(allowed_operation_any_user)])
+@router.get("/{comment_id}", status_code=status.HTTP_200_OK, response_model=schema_comments.CommentResponse, dependencies=[Depends(allowed_operation_any_user), Depends(RateLimiter(times=10, seconds=60))])
 async def read_comment(comment_id: int, db: Session = Depends(get_db)):
     """
     The read_comment function returns a comment by its id.
@@ -41,7 +42,7 @@ async def read_comment(comment_id: int, db: Session = Depends(get_db)):
     return await repository_comments.get_comment_by_id(comment_id=comment_id, db=db)
 
 
-@router.patch("/{comment_id}", status_code=200, response_model=schema_comments.CommentResponse, dependencies=[Depends(allowed_operation_any_user)])
+@router.patch("/{comment_id}", status_code=200, response_model=schema_comments.CommentResponse, dependencies=[Depends(allowed_operation_any_user), Depends(RateLimiter(times=10, seconds=60))])
 async def update_comment(comment_id: int, body: schema_comments.CommentUpdate, current_user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
     """
     The update_comment function updates a comment in the database.
@@ -60,7 +61,7 @@ async def update_comment(comment_id: int, body: schema_comments.CommentUpdate, c
     return await repository_comments.update_comment(comment_id=comment_id, user=current_user, body=body, db=db)
 
 
-@router.delete("/{comment_id}", status_code=200, dependencies=[Depends(allowed_operation_admin_moderator)])
+@router.delete("/{comment_id}", status_code=200, dependencies=[Depends(allowed_operation_admin_moderator), Depends(RateLimiter(times=10, seconds=60))])
 async def delete_comment(comment_id: int, db: Session = Depends(get_db)):
     """
     The update_comment function updates a comment by deleting it.

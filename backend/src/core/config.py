@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = 'http://localhost:3000'
     BACKEND_URL: str = 'http://localhost:8000'
     ADMINER_URL: str = 'http://localhost:8080/?pgsql=localhost&username=&db=&ns=&passwd='
+    REDIS_HOST_: str = 'redis'
+    REDIS_PORT: int = 6379
+    REDIS_PASSWORD: str = ''
 
     @computed_field  # type: ignore[misc]
     @property
