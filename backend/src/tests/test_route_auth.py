@@ -47,9 +47,9 @@ def test_login_wrong_password(client, user):
 
 def test_login_wrong_username(client, user):
     response = client.post("/api/v1/auth/login", data={"username": "username", "password": user.get("password")})
-    assert response.status_code == 401, response.text
+    assert response.status_code == 404, response.text
     data = response.json()
-    assert data["detail"] == "Invalid username"
+    assert data["detail"] == "Can't find user"
 
 
 def test_refresh_token_user(client, user, session):
