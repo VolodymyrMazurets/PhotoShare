@@ -1,10 +1,9 @@
 "use client";
 
 import { Button, Col, Row, Typography, Spin } from "antd";
-import axios from "axios";
+import axios from "@/api/axios";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import { isNull } from "lodash";
 
 const { Title } = Typography;
@@ -20,14 +19,13 @@ const ConfirmEmail: React.FC = () => {
       return setIsSuccess(false);
     }
     axios
-      .get(`http://localhost:8000/api/v1/auth/confirmed_email/${token}`)
+      .get(`auth/confirmed_email/${token}`)
       .then(() => {
         setIsSuccess(true);
       })
-      .catch((err) => {
+      .catch(() => {
         if (isNull(isSuccess)) {
           setIsSuccess(false);
-          toast.error(err.response.data.detail || "Something going wrong!");
         }
       });
   }, [isSuccess, params]);

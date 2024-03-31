@@ -28,7 +28,7 @@ async def upload_post(user: User = Depends(auth_service.get_current_user), image
 
 @router.delete("/{post_id}", response_model=PostDelete)
 async def remove_post(post_id: int, user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
-    post = await delete_post(post_id, user, db)
+    await delete_post(post_id, user, db)
     return {"detail": 'Post successfully deleted'}
 
 

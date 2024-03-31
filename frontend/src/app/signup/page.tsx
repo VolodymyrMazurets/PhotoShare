@@ -9,7 +9,7 @@ import {
   Row,
   Typography,
 } from "antd";
-import axios from "axios";
+import axios from "@/api/axios";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
@@ -26,19 +26,10 @@ const Signup: React.FC = () => {
   const [form] = Form.useForm();
 
   const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
-    axios
-      .post("http://localhost:8000/api/v1/auth/signup", values)
-      .then((res) => {
-        toast.success(res.data.detail);
-        form.resetFields();
-      })
-      .catch((err) => {
-        if (err.response?.data?.detail) {
-          toast.error(err.response.data.detail);
-        } else {
-          toast.error('Something going wrong!');
-        }
-      });
+    axios.post("auth/signup", values).then((res) => {
+      toast.success(res.data.detail);
+      form.resetFields();
+    });
   };
 
   const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
@@ -50,7 +41,6 @@ const Signup: React.FC = () => {
   const onLoginClick = () => {
     router.push("/login");
   };
-
 
   return (
     <div style={{ height: "100vh", width: "100%", overflow: "hidden" }}>
