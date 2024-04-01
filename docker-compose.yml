@@ -2,21 +2,6 @@
 version: "3"
 
 services:
-  postgres:
-    image: postgres:16
-    restart: unless-stopped
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Variable not set}
-      POSTGRES_USER: ${POSTGRES_USER?Variable not set}
-      POSTGRES_DB: ${POSTGRES_DB?Variable not set}
-    volumes:
-      - photoshare-db-data:/var/lib/postgresql/data:cached
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
-      interval: 5s
-      timeout: 5s
-      retries: 20
-  
   redis:
     image: redis:alpine
     restart: always
@@ -24,25 +9,9 @@ services:
     volumes:
       - redis:/data/redis
 
-  # adminer:
-  #   image: adminer
-  #   ports:
-  #     - ${PORT}:8080
-  #   restart: always
-  #   depends_on:
-  #     - postgres
-  #   environment:
-  #     ADMINER_DEFAULT_SERVER: postgres
-  #     ADMINER_DESIGN: pepa-linha-dark
-  #   networks:
-  #     - adminer-network
-
   backend:
     build: './backend'
     restart: always
-    depends_on:
-      postgres:
-        condition: service_healthy
     environment:
       - DOMAIN=${DOMAIN}
       - API_V1_STR=${API_V1_STR}
@@ -73,23 +42,6 @@ services:
       - "${PORT}:8000"
     networks:
       - default
-
-  # frontend:
-  #   build: './frontend'
-  #   restart: always
-  #
-  #   volumes:
-  #     - /app/node_modules
-  #     - ./frontend:/app
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - backend
-  #   environment:
-  #     - BACKEND_URL=${BACKEND_URL}
-  #     - API_V1_STR=${API_V1_STR}
-  #   networks:
-  #     - default
 
 volumes:
   photoshare-db-data: {}
