@@ -5,8 +5,13 @@ import axios from "@/api/axios";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { isNull } from "lodash";
+import { Suspense } from "react";
 
 const { Title } = Typography;
+
+function SearchBarFallback() {
+  return <>Loading...</>;
+}
 
 const ConfirmEmail: React.FC = () => {
   const params = useSearchParams();
@@ -46,89 +51,91 @@ const ConfirmEmail: React.FC = () => {
   }, [confirmEmail]);
 
   return (
-    <div style={{ height: "100vh", width: "100%", overflow: "hidden" }}>
-      <Row
-        justify="center"
-        align="middle"
-        style={{ height: "100%", width: "100%" }}
-      >
-        <Col span="12" style={{ maxWidth: 420 }}>
-          <div
-            style={{
-              padding: 32,
-              boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
-              maxWidth: 420,
-              display: "flex",
-              justifyContent: "center",
-              flexDirection: "column",
-              alignItems: "center",
-              borderRadius: 12,
-              backgroundColor: "white",
-            }}
-          >
-            <Title level={2} style={{ marginBottom: 24 }}>
-              Email Confirmation
-            </Title>
+    <Suspense fallback={<SearchBarFallback />}>
+      <div style={{ height: "100vh", width: "100%", overflow: "hidden" }}>
+        <Row
+          justify="center"
+          align="middle"
+          style={{ height: "100%", width: "100%" }}
+        >
+          <Col span="12" style={{ maxWidth: 420 }}>
+            <div
+              style={{
+                padding: 32,
+                boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
+                maxWidth: 420,
+                display: "flex",
+                justifyContent: "center",
+                flexDirection: "column",
+                alignItems: "center",
+                borderRadius: 12,
+                backgroundColor: "white",
+              }}
+            >
+              <Title level={2} style={{ marginBottom: 24 }}>
+                Email Confirmation
+              </Title>
 
-            <Row style={{ width: "100%" }}>
-              {isNull(isSuccess) ? (
-                <Col span={24}>
-                  <Spin tip="Loading" size="large">
-                    <div className="content" style={{ height: 60 }} />
-                  </Spin>
-                </Col>
-              ) : (
-                <Col span={24}>
-                  <Row>
-                    {!isSuccess ? (
-                      <Col span={24}>
-                        <Title
-                          level={4}
-                          style={{
-                            marginBottom: 32,
-                            textAlign: "center",
-                            color: "red",
-                          }}
-                        >
-                          Invalid token
-                        </Title>
-                        <Button
-                          type="primary"
-                          style={{ width: "100%" }}
-                          onClick={() => onButtonClick("signup")}
-                        >
-                          Sign up
-                        </Button>
-                      </Col>
-                    ) : (
-                      <Col span={24}>
-                        <Title
-                          level={4}
-                          style={{
-                            marginBottom: 32,
-                            textAlign: "center",
-                            color: "green",
-                          }}
-                        >
-                          Email confirmed successfully
-                        </Title>
-                        <Button
-                          type="primary"
-                          style={{ width: "100%" }}
-                          onClick={() => onButtonClick("login")}
-                        >
-                          Login
-                        </Button>
-                      </Col>
-                    )}
-                  </Row>
-                </Col>
-              )}
-            </Row>
-          </div>
-        </Col>
-      </Row>
-    </div>
+              <Row style={{ width: "100%" }}>
+                {isNull(isSuccess) ? (
+                  <Col span={24}>
+                    <Spin tip="Loading" size="large">
+                      <div className="content" style={{ height: 60 }} />
+                    </Spin>
+                  </Col>
+                ) : (
+                  <Col span={24}>
+                    <Row>
+                      {!isSuccess ? (
+                        <Col span={24}>
+                          <Title
+                            level={4}
+                            style={{
+                              marginBottom: 32,
+                              textAlign: "center",
+                              color: "red",
+                            }}
+                          >
+                            Invalid token
+                          </Title>
+                          <Button
+                            type="primary"
+                            style={{ width: "100%" }}
+                            onClick={() => onButtonClick("signup")}
+                          >
+                            Sign up
+                          </Button>
+                        </Col>
+                      ) : (
+                        <Col span={24}>
+                          <Title
+                            level={4}
+                            style={{
+                              marginBottom: 32,
+                              textAlign: "center",
+                              color: "green",
+                            }}
+                          >
+                            Email confirmed successfully
+                          </Title>
+                          <Button
+                            type="primary"
+                            style={{ width: "100%" }}
+                            onClick={() => onButtonClick("login")}
+                          >
+                            Login
+                          </Button>
+                        </Col>
+                      )}
+                    </Row>
+                  </Col>
+                )}
+              </Row>
+            </div>
+          </Col>
+        </Row>
+      </div>
+    </Suspense>
   );
 };
 
