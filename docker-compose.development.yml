@@ -48,18 +48,16 @@ services:
 
   backend:
     build: 
-      context: .
-      dockerfile: ./backend/Dockerfile.development
-      platforms:
-        - 'linux/amd64'
+      context: ./backend
+      dockerfile: Dockerfile.development
     restart: always
     depends_on:
       postgres:
         condition: service_healthy
     env_file: .env
     volumes:
-      - ./backend:/cpde
-      - /code/.venv
+      - ./backend:/app
+      - /app/.venv
     environment:
       - DOMAIN=${DOMAIN}
       - API_V1_STR=${API_V1_STR}
@@ -115,4 +113,3 @@ volumes:
 networks:
   adminer-network:
   app-network: 
-

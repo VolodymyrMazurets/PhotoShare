@@ -2,16 +2,14 @@ FROM python:3.12
 
 WORKDIR  /app
 
+COPY ./pyproject.toml /app/pyproject.toml
 
-RUN pip3 install pipx && \
-    pipx install poetry
+RUN pip3 install poetry
 
-ENV PATH=/root/.local/bin:$PATH
-
-COPY pyproject.toml ./
+RUN poetry config virtualenvs.create false
 
 RUN poetry install 
 
-COPY . ./
+COPY . .
 
 CMD ["poetry", "run", "uvicorn", "--host", "0.0.0.0", "--port", "8000", "src.main:app", "--reload"]
