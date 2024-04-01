@@ -47,15 +47,19 @@ services:
       - adminer-network
 
   backend:
-    build: './backend'
+    build: 
+      context: .
+      dockerfile: ./backend/Dockerfile.development
+      platforms:
+        - 'linux/amd64'
     restart: always
     depends_on:
       postgres:
         condition: service_healthy
     env_file: .env
     volumes:
-      - ./backend:/app
-      - /app/.venv
+      - ./backend:/cpde
+      - /code/.venv
     environment:
       - DOMAIN=${DOMAIN}
       - API_V1_STR=${API_V1_STR}
