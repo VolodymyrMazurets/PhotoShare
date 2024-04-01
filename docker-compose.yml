@@ -11,7 +11,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER?Variable not set}
       POSTGRES_DB: ${POSTGRES_DB?Variable not set}
     ports:
-      - 5432:5432
+      - ${PORT}:5432
     volumes:
       - photoshare-db-data:/var/lib/postgresql/data:cached
     healthcheck:
@@ -31,12 +31,12 @@ services:
     volumes:
       - redis:/data/redis
     ports:
-      - '6379:6379'
+      - '${PORT}:6379'
 
   adminer:
     image: adminer
     ports:
-      - 8080:8080
+      - ${PORT}:8080
     restart: always
     depends_on:
       - postgres
@@ -80,7 +80,7 @@ services:
       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
     ports:
-      - "8000:8000"
+      - "${PORT}:8000"
     networks:
       - default
 
@@ -89,7 +89,7 @@ services:
     restart: always
     env_file: .env
     ports:
-      - "3000:3000"
+      - "${PORT}:3000"
     depends_on:
       - backend
     environment:
