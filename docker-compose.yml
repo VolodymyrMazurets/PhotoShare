@@ -2,25 +2,25 @@
 version: "3"
 
 services:
-  postgres:
-    image: postgres:14
-    restart: unless-stopped
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Variable not set}
-      POSTGRES_USER: ${POSTGRES_USER?Variable not set}
-      POSTGRES_DB: ${POSTGRES_DB?Variable not set}
-    ports:
-      - ${PORT}:5432
-    volumes:
-      - photoshare-db-data:/var/lib/postgresql/data:cached
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
-      interval: 5s
-      timeout: 5s
-      retries: 20
-    networks:
-      - default
-      - adminer-network
+  # postgres:
+  #   image: postgres:14
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Variable not set}
+  #     POSTGRES_USER: ${POSTGRES_USER?Variable not set}
+  #     POSTGRES_DB: ${POSTGRES_DB?Variable not set}
+  #   ports:
+  #     - ${PORT}:5432
+  #   volumes:
+  #     - photoshare-db-data:/var/lib/postgresql/data:cached
+  #   healthcheck:
+  #     test: ['CMD-SHELL', 'pg_isready -U postgres']
+  #     interval: 5s
+  #     timeout: 5s
+  #     retries: 20
+  #   networks:
+  #     - default
+  #     - adminer-network
   
   redis:
     image: redis:alpine
@@ -31,25 +31,22 @@ services:
     ports:
       - '${PORT}:6379'
 
-  adminer:
-    image: adminer
-    ports:
-      - ${PORT}:8080
-    restart: always
-    depends_on:
-      - postgres
-    environment:
-      ADMINER_DEFAULT_SERVER: postgres
-      ADMINER_DESIGN: pepa-linha-dark
-    networks:
-      - adminer-network
+  # adminer:
+  #   image: adminer
+  #   ports:
+  #     - ${PORT}:8080
+  #   restart: always
+  #   depends_on:
+  #     - postgres
+  #   environment:
+  #     ADMINER_DEFAULT_SERVER: postgres
+  #     ADMINER_DESIGN: pepa-linha-dark
+  #   networks:
+  #     - adminer-network
 
   backend:
     build: './backend'
     restart: always
-    depends_on:
-      postgres:
-        condition: service_healthy
     environment:
       - DOMAIN=${DOMAIN}
       - API_V1_STR=${API_V1_STR}
@@ -102,7 +99,4 @@ volumes:
   photoshare-db-data: {}
   redis: {}
 
-networks:
-  adminer-network:
-  app-network: 
 
