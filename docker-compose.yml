@@ -2,25 +2,13 @@
 version: "3"
 
 services:
-  # postgres:
-  #   image: postgres:14
-  #   restart: unless-stopped
-  #   environment:
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Variable not set}
-  #     POSTGRES_USER: ${POSTGRES_USER?Variable not set}
-  #     POSTGRES_DB: ${POSTGRES_DB?Variable not set}
-  #   ports:
-  #     - ${PORT}:5432
-  #   volumes:
-  #     - photoshare-db-data:/var/lib/postgresql/data:cached
-  #   healthcheck:
-  #     test: ['CMD-SHELL', 'pg_isready -U postgres']
-  #     interval: 5s
-  #     timeout: 5s
-  #     retries: 20
-  #   networks:
-  #     - default
-  #     - adminer-network
+  postgres:
+    image: postgres:14
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?Variable not set}
+      POSTGRES_USER: ${POSTGRES_USER?Variable not set}
+      POSTGRES_DB: ${POSTGRES_DB?Variable not set}
   
   redis:
     image: redis:alpine
