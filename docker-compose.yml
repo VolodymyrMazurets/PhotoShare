@@ -84,20 +84,6 @@ services:
     networks:
       - default
 
-  frontend:
-    build: './frontend'
-    restart: always
-    env_file: .env
-    ports:
-      - "${PORT}:3000"
-    depends_on:
-      - backend
-    environment:
-      - BACKEND_URL=${BACKEND_URL}
-      - API_V1_STR=${API_V1_STR}
-    networks:
-      - default
-
 volumes:
   photoshare-db-data: {}
   redis: {}
