@@ -53,6 +53,9 @@ services:
       postgres:
         condition: service_healthy
     env_file: .env
+    volumes:
+      - ./backend:/app
+      - /app/.venv
     environment:
       - DOMAIN=${DOMAIN}
       - API_V1_STR=${API_V1_STR}
@@ -88,6 +91,9 @@ services:
     build: './frontend'
     restart: always
     env_file: .env
+    volumes:
+      - /app/node_modules
+      - ./frontend:/app
     ports:
       - "3000:3000"
     depends_on:
