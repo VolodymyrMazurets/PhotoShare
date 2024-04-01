@@ -15,9 +15,6 @@ services:
   backend:
     build: './backend'
     restart: always
-    depends_on:
-      postgres:
-        condition: service_healthy
     env_file: .env
     environment:
       - DOMAIN=${DOMAIN}
