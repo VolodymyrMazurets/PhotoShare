@@ -45,7 +45,7 @@ class User(BaseModel):
     avatar = Column(String(255), nullable=True)
     refresh_token = Column(String(255), nullable=True)
     confirmed = Column(Boolean, default=False)
-    active = Column(Boolean, default=False)
+    active = Column(Boolean, default=True)
     role = Column(String, default="user")
     comments = relationship("Comment", back_populates="user")
     posts = relationship("Post", back_populates="user")

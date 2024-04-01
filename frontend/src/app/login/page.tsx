@@ -9,7 +9,7 @@ import {
   Row,
   Typography,
 } from "antd";
-import axios from "axios";
+import axios from "@/api/axios";
 import { generateFormDataFromObject, parseJwt } from "@/utils";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
@@ -29,16 +29,13 @@ const Login: React.FC = () => {
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     const data = generateFormDataFromObject(values);
     axios
-      .post("http://localhost:8000/api/v1/auth/login", data)
+      .post("auth/login", data)
       .then((res) => {
         setCookie("token", res.data.access_token, {expires: fromUnixTime(parseJwt(res.data.access_token)?.exp)});
         setCookie("refresh_token", res.data.refresh_token);
         toast.success("Login successfully!");
         router.push("/");
       })
-      .catch((err) => {
-        toast.error(err.response.data.detail || "Something going wrong!");
-      });
   };
 
   const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (

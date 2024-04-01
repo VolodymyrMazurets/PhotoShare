@@ -1,17 +1,31 @@
 /* eslint-disable @next/next/no-img-element */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import BlockWrapper from "../common/BlockWrapper";
-import axios from "axios";
-import { getCookie } from "cookies-next";
 import { toast } from "react-toastify";
-import { Avatar, Col, Row, Typography, Card } from "antd";
+import {
+  Avatar,
+  Col,
+  Row,
+  Typography,
+  Card,
+  Segmented,
+  Button,
+  Modal,
+  Empty,
+  Tag,
+} from "antd";
 import {
   UserOutlined,
-  SettingOutlined,
+  DeleteOutlined,
   EditOutlined,
   EllipsisOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
-import { map } from "lodash";
+import { map, isEmpty } from "lodash";
+import CreatePost from "../common/CreatePost";
+import { deleteCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
+import axios from "@/api/axios";
 
 const { Text, Title } = Typography;
 const { Meta } = Card;
@@ -54,33 +68,67 @@ interface PostType {
 export default function Home() {
   const [posts, setPosts] = useState<PostType[]>([]);
   const [user, setUser] = useState<UserType | null>(null);
+  const [currentView, setCurrentView] = useState<string>("All Posts");
+  const [modalVisibility, setModalVisibility] = useState<boolean>(false);
+
+  const router = useRouter();
+
+  const getAllPosts = useCallback(() => {
+    axios.get("posts/all").then((res) => {
+      setPosts(res.data);
+    });
+  }, []);
+
+  const getUserProfile = useCallback(() => {
+    axios.get("profile/me").then((res) => {
+      setUser(res.data);
+    });
+  }, []);
+
+  const getOwnPosts = useCallback(() => {
+    axios.get("posts/").then((res) => {
+      setPosts(res.data);
+    });
+  }, []);
+
+  const refetchData = useCallback(() => {
+    if (currentView === "All Posts") {
+      getAllPosts();
+    } else {
+      getOwnPosts();
+    }
+  }, [currentView, getAllPosts, getOwnPosts]);
+
+  const onDeletePost = useCallback(
+    (postId: number) => {
+      axios
+        .delete(`http://localhost:8000/api/v1/posts/${postId}`)
+        .then((res) => {
+          toast.success(res.data.detail || "Success");
+          refetchData();
+        });
+    },
+    [refetchData]
+  );
+
+  const onAddNewPostClick = useCallback(() => {
+    setModalVisibility(true);
+  }, []);
+
+  const onLogoutClick = () => {
+    deleteCookie("token");
+    deleteCookie("refresh_token");
+    router.push("/login");
+  };
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8000/api/v1/posts/all", {
-        headers: {
-          Authorization: `Bearer ${getCookie("token")}`,
-        },
-      })
-      .then((res) => {
-        setPosts(res.data);
-      })
-      .catch((err) => {
-        toast.error(err.response.data.detail || "Something going wrong!");
-      });
-    axios
-      .get("http://localhost:8000/api/v1/profile/me", {
-        headers: {
-          Authorization: `Bearer ${getCookie("token")}`,
-        },
-      })
-      .then((res) => {
-        setUser(res.data);
-      })
-      .catch((err) => {
-        toast.error(err.response.data.detail || "Something going wrong!");
-      });
-  }, []);
+    refetchData();
+  }, [currentView, getAllPosts, getOwnPosts, refetchData]);
+
+  useEffect(() => {
+    getUserProfile();
+  }, [getUserProfile]);
+
   return (
     <div
       style={{
@@ -94,17 +142,43 @@ export default function Home() {
         borderRadius: 12,
       }}
     >
+      <Modal
+        title="Basic Modal"
+        open={modalVisibility}
+        onCancel={() => setModalVisibility(false)}
+        footer={null}
+      >
+        <CreatePost
+          onCancel={() => setModalVisibility(false)}
+          onSuccess={() => {
+            refetchData();
+            setModalVisibility(false);
+          }}
+        />
+      </Modal>
       <Row gutter={[32, 32]}>
         <Col span={24}>
           <BlockWrapper>
-            <Row align="middle" gutter={16}>
+            <Row align="middle" justify="space-between" gutter={16}>
               <Col>
-                <Avatar size={48} icon={<UserOutlined />} src={user?.avatar} />
+                <Row gutter={16} align="middle">
+                  <Col>
+                    <Avatar
+                      size={48}
+                      icon={<UserOutlined />}
+                      src={user?.avatar}
+                    />
+                  </Col>
+                  <Col>
+                    <Title level={4} style={{ margin: 0 }}>
+                      Welcome back <b>{user?.username}</b>! Your role is{" "}
+                      <b>{user?.role}</b>
+                    </Title>
+                  </Col>
+                </Row>
               </Col>
               <Col>
-                <Title level={4} style={{ margin: 0 }}>
-                  Welcome back {user?.username}!
-                </Title>
+                <Button onClick={onLogoutClick}>Logout</Button>
               </Col>
             </Row>
           </BlockWrapper>
@@ -112,39 +186,80 @@ export default function Home() {
         <Col span={24}>
           <BlockWrapper>
             <Row gutter={[12, 12]}>
-              {map(posts, ({ id, image, title, description }) => (
-                <Col span={6} key={id}>
-                  <Card
-                    hoverable
-                    style={{ height: 400 }}
-                    cover={
-                      <img
-                        alt="example"
-                        src={image}
-                        style={{
-                          width: "100%",
-                          height: 260,
-                          objectFit: "cover",
-                        }}
-                      />
-                    }
-                    actions={[
-                      <SettingOutlined key="setting" />,
-                      <EditOutlined key="edit" />,
-                      <EllipsisOutlined key="ellipsis" />,
-                    ]}
-                  >
-                    <Meta
-                      title={
-                        <Title level={5} style={{ margin: 0 }} ellipsis>
-                          {title}
-                        </Title>
-                      }
-                      description={<Text ellipsis>{description}</Text>}
-                    />
-                  </Card>
+              <Col span={24}>
+                <Row justify="space-between">
+                  <Segmented<string>
+                    options={["All Posts", "Own Post"]}
+                    onChange={setCurrentView}
+                  />
+                  <Button icon={<PlusOutlined />} onClick={onAddNewPostClick}>
+                    Add new post
+                  </Button>
+                </Row>
+              </Col>
+              {isEmpty(posts) ? (
+                <Col
+                  span={24}
+                  style={{ display: "flex", justifyContent: "center" }}
+                >
+                  <Empty />
                 </Col>
-              ))}
+              ) : (
+                map(posts, ({ id, image, title, description, user, tags }) => (
+                  <Col span={6} key={id}>
+                    <Card
+                      hoverable
+                      style={{
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                      }}
+                      cover={
+                        <img
+                          alt="example"
+                          src={image}
+                          style={{
+                            width: "100%",
+                            height: 250,
+                            objectFit: "cover",
+                          }}
+                        />
+                      }
+                      actions={[
+                        <DeleteOutlined
+                          key="delete"
+                          onClick={() => onDeletePost(id)}
+                        />,
+                        <EditOutlined key="edit" />,
+                        <EllipsisOutlined key="ellipsis" />,
+                      ]}
+                    >
+                      <Meta
+                        style={{ flex: 1 }}
+                        avatar={<Avatar src={user?.avatar} />}
+                        title={
+                          <Title level={5} style={{ margin: 0 }} ellipsis>
+                            {title}
+                          </Title>
+                        }
+                        description={
+                          <Row>
+                            <Col span={24}>
+                              {map(tags, ({ id, name }) => (
+                                <Tag key={id}>{name}</Tag>
+                              ))}
+                            </Col>
+                            <Col span={24}>
+                              <Text ellipsis>{description}</Text>
+                            </Col>
+                          </Row>
+                        }
+                      />
+                    </Card>
+                  </Col>
+                ))
+              )}
             </Row>
           </BlockWrapper>
         </Col>

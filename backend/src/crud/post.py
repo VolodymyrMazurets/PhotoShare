@@ -51,7 +51,8 @@ async def delete_post(post_id: int, user: User, db: Session):
     post = await get_post_by_id(post_id, db)
     check_permission(user.role, post.user_id, user.id)
     try:
-        cloudinary.uploader.destroy(post.image_public_id)
+        if post.image_public_id:
+            cloudinary.uploader.destroy(post.image_public_id)
         db.delete(post)
         db.commit()
         return post

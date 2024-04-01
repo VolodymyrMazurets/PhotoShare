@@ -2,10 +2,10 @@
 
 ## Local Development
 
-* Start the stack with Docker Compose:
+* Start the local development with Docker Compose:
 
 ```bash
-docker compose up -d
+docker compose --file 'docker-compose.development.yml' up -d
 ```
 
 * Now you can open your browser and interact with these URLs:
@@ -16,8 +16,10 @@ Automatic interactive documentation with Swagger UI (from the OpenAPI backend): 
 
 Adminer, database web administration: http://localhost:8080
 
+Frontend app: http://localhost:3000
+
 * After changes on dependencies files you need to stop docker and rebuild containers:
 
 ```bash
-docker compose up --build -d
+docker compose --file 'docker-compose.development.yml' up -d
 ```
