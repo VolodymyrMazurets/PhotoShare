@@ -13,6 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent
 origins = [
     "http://localhost:8000",
     "http://localhost:3000",
+    "https://photo-share-frontend-next.vercel.app/"
 ]
 
 app = FastAPI()
