@@ -9,6 +9,10 @@ import { Suspense } from "react";
 
 const { Title } = Typography;
 
+function SearchBarFallback() {
+  return <>Loading...</>;
+}
+
 const ConfirmEmail: React.FC = () => {
   const params = useSearchParams();
   const router = useRouter();
@@ -47,7 +51,7 @@ const ConfirmEmail: React.FC = () => {
   }, [confirmEmail]);
 
   return (
-    <Suspense>
+    <Suspense fallback={<SearchBarFallback />}>
       <div style={{ height: "100vh", width: "100%", overflow: "hidden" }}>
         <Row
           justify="center"
