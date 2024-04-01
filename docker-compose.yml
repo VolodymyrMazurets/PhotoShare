@@ -28,8 +28,6 @@ services:
     command: ["sh", "-c", "redis-server --requirepass \"$REDIS_PASSWORD\""]
     volumes:
       - redis:/data/redis
-    ports:
-      - '${PORT}:6379'
 
   # adminer:
   #   image: adminer
