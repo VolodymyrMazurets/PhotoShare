@@ -9,9 +9,6 @@ from pydantic_core import MultiHostUrl
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_file=".env", env_ignore_empty=True, extra="ignore"
-    )
     API_V1_STR: str = "/api/v1"
     DOMAIN: str = "localhost"
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
@@ -45,7 +42,6 @@ class Settings(BaseSettings):
             username=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD,
             host=self.POSTGRES_SERVER,
-            port=self.POSTGRES_PORT,
             path=self.POSTGRES_DB,
         )
 
