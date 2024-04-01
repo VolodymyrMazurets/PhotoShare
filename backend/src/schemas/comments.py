@@ -17,7 +17,7 @@ class CommentResponse(BaseModel):
     updated_at: Optional[datetime]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class CommentUpdate(BaseModel):
