@@ -11,12 +11,12 @@ from src.services.auth import auth_service
 router = APIRouter(prefix="/posts", tags=["posts"])
 
 
-@router.get("/", response_model=List[PostModelWithImage], dependencies=[Depends(RateLimiter(times=10, seconds=30))])
+@router.get("/{user}", response_model=List[PostModelWithImage], dependencies=[Depends(RateLimiter(times=10, seconds=30))])
 async def get_all_own_posts(user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
     return await get_own_posts_list(user, db)
 
 
-@router.get("/all", response_model=List[PostModelWithImage], dependencies=[Depends(RateLimiter(times=10, seconds=30))])
+@router.get("/", response_model=List[PostModelWithImage], dependencies=[Depends(RateLimiter(times=10, seconds=30))])
 async def get_all_posts(db: Session = Depends(get_db)):
     return await get_posts_list(db)
 
@@ -44,13 +44,13 @@ async def get_specific_post(post_id: int, db: Session = Depends(get_db)):
     return await get_post_by_id(post_id, db)
 
 
-@router.post("/transform/{post_id}", response_model=PostTransformImage, dependencies=[Depends(RateLimiter(times=10, seconds=60))])
+@router.post("/{post_id}/transform", response_model=PostTransformImage, dependencies=[Depends(RateLimiter(times=10, seconds=60))])
 async def transform_post_image(post_id: int, user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db), gravity: str | None = None, height: int | None = None, width: int | None = None, radius: str | None = None):
     image = await transform_image(post_id, user, db, gravity, height, width, radius)
     return {"image": image, "detail": "Post image successfully transformed"}
 
 
-@router.post("/qr/{post_id}", response_model=PostTransformImageQR, dependencies=[Depends(RateLimiter(times=10, seconds=60))])
+@router.post("/{post_id}/qr", response_model=PostTransformImageQR, dependencies=[Depends(RateLimiter(times=10, seconds=60))])
 async def transform_post_image(post_id: int, user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
     qr = await generate_and_get_qr_code(post_id, user, db)
     return {"image": qr, "detail": "QR code successfully generated"}
