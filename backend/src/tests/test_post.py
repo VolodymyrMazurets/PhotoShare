@@ -1,6 +1,7 @@
+from fastapi.testclient import TestClient
 import tempfile
 from fastapi import UploadFile, HTTPException, status
-from sqlalchemy.orm import Session
+from src.main import app
 from src.crud.post import (
     upload_post_with_description,
     delete_post,
@@ -47,8 +48,6 @@ def test_upload_post_with_description(db):
     assert created_post.title == "Test Post"
     assert created_post.description == "Test Description"
     assert len(created_post.tags) == 2
-
-
 
 def test_delete_post(db):
     # Створення тимчасового поста для тесту
