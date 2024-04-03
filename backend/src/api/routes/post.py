@@ -12,8 +12,8 @@ router = APIRouter(prefix="/posts", tags=["posts"])
 
 
 @router.get("/", response_model=List[PostModelWithImage], dependencies=[Depends(RateLimiter(times=10, seconds=30))])
-async def get_all_own_posts(user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db), username: str = None):
-    return await get_own_posts_list(user, db, username) 
+async def get_all_own_posts(user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db), own: str = None):
+    return await get_own_posts_list(user, db, own) 
 
 
 # @router.get("/", response_model=List[PostModelWithImage], dependencies=[Depends(RateLimiter(times=10, seconds=30))])

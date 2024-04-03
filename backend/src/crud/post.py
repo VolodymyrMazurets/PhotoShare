@@ -91,10 +91,10 @@ async def get_posts_list(db: Session):
             status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
 
 
-async def get_own_posts_list(user: User, db: Session, username: str = None):
-    if username:
+async def get_own_posts_list(user: User, db: Session, own: str = None):
+    if own:
         try:
-            return db.query(Post).filter(and_(user.id == Post.user_id, user.username == username)).all()
+            return db.query(Post).filter(user.id == Post.user_id).all()
         except Exception as e:
             raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
