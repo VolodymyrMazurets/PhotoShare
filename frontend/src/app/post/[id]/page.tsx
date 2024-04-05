@@ -4,18 +4,20 @@
 import { useCallback, useEffect, useState } from "react";
 import axios from "@/api/axios";
 import { PostType } from "@/components/pages/Home";
-import { Avatar, Button, Col, Row } from "antd";
+import { Avatar, Button, Col, Input, Row } from "antd";
 import { isNull, map } from "lodash";
 import { UserOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import BlockWrapper from "@/components/common/BlockWrapper";
+import { toast } from "react-toastify";
 
 export default function Post({ params }: { params: { id: number } }) {
   const [post, setPost] = useState<PostType | null>(null);
   const [loading, setLoading] = useState(false);
+  const [comment, setComment] = useState("");
   const router = useRouter();
 
-  const getAllPosts = useCallback(() => {
+  const getPost = useCallback(() => {
     setLoading(true);
     axios
       .get(`posts/${params.id}`)
@@ -30,12 +32,18 @@ export default function Post({ params }: { params: { id: number } }) {
   const onTransform = useCallback(() => {
     setLoading(true);
     axios
-      .post(`posts/${params.id}/transform`, {}, {params: {
-        gravity: "face",
-        height: 200,
-        width: 200,
-        radius: "max",
-      },})
+      .post(
+        `posts/${params.id}/transform`,
+        {},
+        {
+          params: {
+            gravity: "face",
+            height: 200,
+            width: 200,
+            radius: "max",
+          },
+        }
+      )
       .then((res) => {
         if (!isNull(post)) {
           setPost({
@@ -66,12 +74,25 @@ export default function Post({ params }: { params: { id: number } }) {
       });
   }, [params.id, post]);
 
+  const addComment = useCallback(() => {
+    axios
+      .post(`posts/comments/`, {
+        content: comment,
+        post_id: Number(params.id),
+      })
+      .then(() => {
+        toast.success("Comment added successfully");
+        setComment("");
+        getPost();
+      });
+  }, [getPost, params.id, comment]);
+
   useEffect(() => {
-    getAllPosts();
-  }, [getAllPosts]);
+    getPost();
+  }, [getPost]);
 
   if (!post) {
-    return <h1>Loading ...</h1>
+    return <h1>Loading ...</h1>;
   }
 
   return (
@@ -160,6 +181,20 @@ export default function Post({ params }: { params: { id: number } }) {
                       ))}
                     </Row>
                   </BlockWrapper>
+                </Col>
+                <Col span={24}>
+                  <Input.TextArea
+                    placeholder="Comment"
+                    onChange={(v) => setComment(v.target.value)}
+                    style={{ marginBottom: 10 }}
+                  />
+                  <Button
+                    type="primary"
+                    disabled={!comment.length}
+                    onClick={addComment}
+                  >
+                    Add
+                  </Button>
                 </Col>
               </Row>
             )}

@@ -79,7 +79,7 @@ export default function Home() {
 
   const getAllPosts = useCallback(() => {
     axios
-      .get("posts", { params: { is_own: currentView !== "All Posts" } })
+      .get("posts/", { params: { is_own: currentView !== "All Posts" } })
       .then((res) => {
         setPosts(res.data);
       });
