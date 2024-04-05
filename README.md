@@ -21,5 +21,5 @@ Frontend app: http://localhost:3000
 * After changes on dependencies files you need to stop docker and rebuild containers:
 
 ```bash
-docker compose --file 'docker-compose.development.yml' up -d
+docker compose --file 'docker-compose.development.yml' up --build -d
 ```
