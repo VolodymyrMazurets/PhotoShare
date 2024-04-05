@@ -1,3 +1,5 @@
+import redis
+import pickle
 from libgravatar import Gravatar
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
@@ -18,6 +20,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+r = redis.Redis(host=settings.REDIS_HOST_,
+                port=settings.REDIS_PORT, password=settings.REDIS_PASSWORD, db=0)
 
 
 async def get_user_by_email(email: str, db: Session) -> User:
@@ -77,6 +81,7 @@ async def update_avatar(email: str, url: str, db: Session) -> User:
     user.avatar = url
     db.commit()
     db.refresh(user)
+    r.set(f"user:{email}", pickle.dumps(user))
     return user
 
 
@@ -100,6 +105,7 @@ async def update_user(user_id: int, body: UserUpdate, db: Session, current_user:
     user.email = body.email
     user.username = body.username
     db.commit()
+    db.refresh(user)
     return user
 
 
@@ -114,6 +120,7 @@ async def update_role(user_id: int, role: str, db: Session, current_user: User) 
         and_(User.id == user_id, current_user.role == 'admin')).first()
     if user:
         user.role = role
+        r.set(f"user:{current_user.email}", pickle.dumps(user))
     db.commit()
     return user
 

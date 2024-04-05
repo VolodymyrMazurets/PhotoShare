@@ -26,6 +26,7 @@ import CreatePost from "../common/CreatePost";
 import { deleteCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import axios from "@/api/axios";
+import UpdateAvatar from "../common/UpdateAvatar";
 
 const { Text, Title } = Typography;
 const { Meta } = Card;
@@ -50,9 +51,10 @@ interface CommentType {
   post_id: number;
   created_at: string;
   updated_at: string;
+  user: UserType;
 }
 
-interface PostType {
+export interface PostType {
   id: number;
   title: string;
   description: string;
@@ -70,6 +72,8 @@ export default function Home() {
   const [user, setUser] = useState<UserType | null>(null);
   const [currentView, setCurrentView] = useState<string>("All Posts");
   const [modalVisibility, setModalVisibility] = useState<boolean>(false);
+  const [avatarModalVisibility, setAvatarModalVisibility] =
+    useState<boolean>(false);
 
   const router = useRouter();
 
@@ -148,6 +152,19 @@ export default function Home() {
           }}
         />
       </Modal>
+      <Modal
+        title="Update Avatar"
+        open={avatarModalVisibility}
+        onCancel={() => setAvatarModalVisibility(false)}
+        footer={null}
+      >
+        <UpdateAvatar
+          onCancel={() => setAvatarModalVisibility(false)}
+          onSuccess={() => {
+            setModalVisibility(false);
+          }}
+        />
+      </Modal>
       <Row gutter={[32, 32]}>
         <Col span={24}>
           <BlockWrapper>
@@ -159,6 +176,7 @@ export default function Home() {
                       size={48}
                       icon={<UserOutlined />}
                       src={user?.avatar}
+                      onClick={() => setAvatarModalVisibility(true)}
                     />
                   </Col>
                   <Col>
@@ -211,6 +229,7 @@ export default function Home() {
                         <img
                           alt="example"
                           src={image}
+                          onClick={() => router.push(`/post/${id}`)}
                           style={{
                             width: "100%",
                             height: 250,
