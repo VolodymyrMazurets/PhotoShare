@@ -20,7 +20,7 @@ async def user_info(username: str, db: Session = Depends(get_db)):
     return await repository_users.get_user_by_username(username, db)
 
 
-@router.delete('/delete_user', response_model=UserDb, dependencies=[Depends(RateLimiter(times=10, seconds=60))])
+@router.delete('/{user_id}', response_model=UserDb, dependencies=[Depends(RateLimiter(times=10, seconds=60))])
 async def delete_user(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(auth_service.get_current_user)):
     return await repository_users.delete_user(user_id, db, current_user)
 
@@ -30,6 +30,6 @@ async def update_user(user_id: int, body: UserUpdate, db: Session = Depends(get_
     return await repository_users.update_user(user_id, body, db, current_user)
 
 
-@router.patch('/update_role', response_model=UserDb, dependencies=[Depends(RateLimiter(times=10, seconds=60))])
+@router.patch('/', response_model=UserDb, dependencies=[Depends(RateLimiter(times=10, seconds=60))])
 async def update_role(user_id: int, role: str, db: Session = Depends(get_db), current_user: User = Depends(auth_service.get_current_user)):
     return await repository_users.update_role(user_id, role, db, current_user)

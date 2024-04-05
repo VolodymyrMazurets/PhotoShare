@@ -5,7 +5,7 @@ from tempfile import NamedTemporaryFile
 from qrcode import QRCode
 from fastapi import File, HTTPException, status
 from sqlalchemy.orm import Session
-
+from sqlalchemy import and_
 from src.models import Post, User, Tag
 from src.schemas.posts import PostModelCreate
 from src.core.config import settings
@@ -91,11 +91,18 @@ async def get_posts_list(db: Session):
             status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
 
 
-async def get_own_posts_list(user: User, db: Session):
-    try:
-        return db.query(Post).filter(user.id == Post.user_id).all()
-    except Exception as e:
-        raise HTTPException(
+async def get_own_posts_list(user: User, db: Session, own: str = None):
+    if own:
+        try:
+            return db.query(Post).filter(user.id == Post.user_id).all()
+        except Exception as e:
+            raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
+    else:
+        try:
+            return db.query(Post).all()
+        except Exception as e:
+            raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
 
 
