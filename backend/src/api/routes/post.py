@@ -5,20 +5,15 @@ from sqlalchemy.orm import Session
 from src.models import User
 from src.core.db import get_db
 from src.schemas.posts import PostCreate, PostUpdate, PostDelete, PostModelWithImage, PostModelCreate, PostTransformImage, PostTransformImageQR
-from src.crud.post import upload_post_with_description, delete_post, update_post_description, get_post_by_id, get_posts_list, get_own_posts_list, transform_image, generate_and_get_qr_code
+from src.crud.post import upload_post_with_description, delete_post, update_post_description, get_post_by_id, get_all_posts_list, transform_image, generate_and_get_qr_code
 from src.services.auth import auth_service
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
 
 @router.get("/", response_model=List[PostModelWithImage], dependencies=[Depends(RateLimiter(times=10, seconds=30))])
-async def get_all_own_posts(user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db), own: str = None):
-    return await get_own_posts_list(user, db, own) 
-
-
-# @router.get("/", response_model=List[PostModelWithImage], dependencies=[Depends(RateLimiter(times=10, seconds=30))])
-# async def get_all_posts(db: Session = Depends(get_db)):
-#     return await get_posts_list(db)
+async def get_all_posts(user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db), is_own: bool = None):
+    return await get_all_posts_list(user, db, is_own) 
 
 
 @router.post("/", response_model=PostCreate, dependencies=[Depends(RateLimiter(times=10, seconds=60))])

@@ -74,10 +74,12 @@ export default function Home() {
   const router = useRouter();
 
   const getAllPosts = useCallback(() => {
-    axios.get("posts/all").then((res) => {
-      setPosts(res.data);
-    });
-  }, []);
+    axios
+      .get("posts", { params: { is_own: currentView !== "All Posts" } })
+      .then((res) => {
+        setPosts(res.data);
+      });
+  }, [currentView]);
 
   const getUserProfile = useCallback(() => {
     axios.get("profile/me").then((res) => {
@@ -85,19 +87,9 @@ export default function Home() {
     });
   }, []);
 
-  const getOwnPosts = useCallback(() => {
-    axios.get("posts/").then((res) => {
-      setPosts(res.data);
-    });
-  }, []);
-
   const refetchData = useCallback(() => {
-    if (currentView === "All Posts") {
-      getAllPosts();
-    } else {
-      getOwnPosts();
-    }
-  }, [currentView, getAllPosts, getOwnPosts]);
+    getAllPosts();
+  }, [getAllPosts]);
 
   const onDeletePost = useCallback(
     (postId: number) => {
@@ -123,7 +115,7 @@ export default function Home() {
 
   useEffect(() => {
     refetchData();
-  }, [currentView, getAllPosts, getOwnPosts, refetchData]);
+  }, [currentView, getAllPosts, refetchData]);
 
   useEffect(() => {
     getUserProfile();

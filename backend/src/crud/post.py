@@ -91,8 +91,8 @@ async def get_posts_list(db: Session):
             status_code=status.HTTP_400_BAD_REQUEST, detail=BAD_REQUEST)
 
 
-async def get_own_posts_list(user: User, db: Session, own: str = None):
-    if own:
+async def get_all_posts_list(user: User, db: Session, is_own: bool = None):
+    if is_own:
         try:
             return db.query(Post).filter(user.id == Post.user_id).all()
         except Exception as e:
