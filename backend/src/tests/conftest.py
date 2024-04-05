@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 load_dotenv()
 from main import app
-from src.models import Base
+from src.models.base import Base
 from src.core.db import get_db
 
 

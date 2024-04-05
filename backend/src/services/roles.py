@@ -2,7 +2,7 @@ from typing import List
 
 from fastapi import Depends, HTTPException, status, Request
 
-from src.models import User
+from src.models.user import User
 from src.services.auth import auth_service
 
 class RoleRights:

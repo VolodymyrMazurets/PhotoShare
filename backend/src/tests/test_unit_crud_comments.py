@@ -1,12 +1,12 @@
 import unittest
 from unittest.mock import MagicMock
-from datetime import datetime, timedelta
 
 
 from sqlalchemy.orm import Session
 
 
-from src.models import Comment, User
+from src.models.user import User
+from src.models.comment import Comment
 from src.schemas.comments import CommentBase
 from src.crud.comments import (
     get_comments,

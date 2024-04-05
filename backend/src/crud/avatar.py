@@ -5,7 +5,7 @@ import cloudinary.uploader
 from fastapi import File, status, HTTPException
 from sqlalchemy.orm import Session
 
-from src.models import User
+from src.models.user import User
 from src.core.config import settings
 from src.crud.users import update_avatar as update_ava
 from src.constants.messages import BAD_REQUEST

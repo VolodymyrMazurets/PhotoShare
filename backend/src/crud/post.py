@@ -5,8 +5,8 @@ from tempfile import NamedTemporaryFile
 from qrcode import QRCode
 from fastapi import File, HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
-from src.models import Post, User, Tag
+from src.models.base import Post, User
+from src.models.tag  import Tag
 from src.schemas.posts import PostModelCreate
 from src.core.config import settings
 from src.crud.tags import create_tag_if_not_exist

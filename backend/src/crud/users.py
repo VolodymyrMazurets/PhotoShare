@@ -7,7 +7,7 @@ from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 
-from src.models import User
+from src.models.user import User
 from src.constants.role import UserRole
 from src.schemas.users import UserModel, UserUpdate
 from src.core.config import settings

@@ -1,20 +1,9 @@
 "use client";
 
-import {
-  Button,
-  Form,
-  type FormProps,
-  Input,
-  Col,
-  Row,
-  Typography,
-  Upload,
-  UploadFile,
-} from "antd";
+import { Button, Form, type FormProps, Input, Upload, UploadFile } from "antd";
 import axios from "@/api/axios";
 import { toast } from "react-toastify";
-
-const { Title } = Typography;
+import { useState } from "react";
 
 type FieldType = {
   title?: string;
@@ -33,13 +22,15 @@ export default function CreatePost({
   onSuccess: () => void;
 }) {
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     const data = new FormData();
     data.append("tags", values.tags || "");
     data.append("image", values.image?.file?.originFileObj || "");
+    setLoading(true);
     axios
-      .post("posts/", data, {
+      .post("posts", data, {
         params: {
           title: values.title,
           description: values.description,
@@ -49,12 +40,14 @@ export default function CreatePost({
         toast.success("Post created successfully");
         form.resetFields();
         onSuccess();
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
   return (
     <>
-      <Title level={2}>Welcome to the app</Title>
       <Form
         name="basic"
         form={form}
@@ -95,7 +88,12 @@ export default function CreatePost({
         </Form.Item>
 
         <Form.Item wrapperCol={{ span: 24 }}>
-          <Button style={{ width: "100%" }} type="primary" htmlType="submit">
+          <Button
+            loading={loading}
+            style={{ width: "100%" }}
+            type="primary"
+            htmlType="submit"
+          >
             Create
           </Button>
         </Form.Item>

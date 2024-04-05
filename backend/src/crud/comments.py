@@ -3,7 +3,8 @@ from fastapi import HTTPException, status
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
-from src.models import Comment, User, Post
+from src.models.comment import Comment
+from src.models.user import User
 from src.schemas.comments import CommentModel, CommentUpdate
 from src.constants.messages import BAD_REQUEST, COMMENT_NOT_FOUND
 from src.crud.post import get_post_by_id

@@ -3,7 +3,7 @@ from fastapi_limiter.depends import RateLimiter
 from src.crud.avatar import update_avatar
 from src.schemas.users import UserDb
 from sqlalchemy.orm import Session
-from src.models import User
+from src.models.user import User
 from src.services.auth import auth_service
 from src.core.db import get_db
 

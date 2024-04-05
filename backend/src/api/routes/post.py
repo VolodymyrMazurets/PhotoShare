@@ -2,7 +2,7 @@ from fastapi import APIRouter, File, UploadFile, Depends
 from fastapi_limiter.depends import RateLimiter
 from typing import List
 from sqlalchemy.orm import Session
-from src.models import User
+from src.models.user import User
 from src.core.db import get_db
 from src.schemas.posts import PostCreate, PostUpdate, PostDelete, PostModelWithImage, PostModelCreate, PostTransformImage, PostTransformImageQR
 from src.crud.post import upload_post_with_description, delete_post, update_post_description, get_post_by_id, get_all_posts_list, transform_image, generate_and_get_qr_code

@@ -9,7 +9,7 @@ from src.schemas.token import TokenModel
 from src.schemas.email import RequestEmail
 from src.crud import users as repository_users
 from src.services.auth import auth_service
-from src.models import User
+from src.models.user import User
 from src.constants.role import UserRole
 from src.core.config import settings
 from src.constants.messages import AUTH_EMAIL_NOT_CONF, AUTH_ALREADY_EXIST, AUTH_INVALID_REF_TOKEN, AUTH_CANT_FIND_USER, AUTH_INVALID_PASSWORD, AUTH_BANNED

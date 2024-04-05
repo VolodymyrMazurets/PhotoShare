@@ -135,7 +135,7 @@ export default function Home() {
       }}
     >
       <Modal
-        title="Basic Modal"
+        title="Create new post"
         open={modalVisibility}
         onCancel={() => setModalVisibility(false)}
         footer={null}

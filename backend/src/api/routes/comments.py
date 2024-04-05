@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.orm import Session
-from src.models import User
+from src.models.user import User
 from src.services.auth import auth_service
 from src.core.db import get_db
 from src.crud import comments as repository_comments

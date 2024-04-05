@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.models import User, Comment, Image
+from src.models.user import User, Image
 from src.constants.role import UserRole
 from src.services.auth import auth_service
 from src.constants import messages

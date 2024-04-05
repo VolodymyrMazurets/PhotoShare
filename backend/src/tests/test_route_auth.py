@@ -1,5 +1,5 @@
 from unittest.mock import MagicMock
-from src.models import User
+from src.models.user import User
 from src.services.auth import auth_service
 
 def test_create_user(client, user, monkeypatch):
