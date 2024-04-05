@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     POSTGRES_USER: str = ''
     POSTGRES_PASSWORD: str = ''
     POSTGRES_DB: str = ""
-    SMTP_PORT: int = 465
+    SMTP_PORT: int = ""
     SMTP_HOST: str = ''
     SMTP_USER: str = ''
     SMTP_PASSWORD: str = ''
